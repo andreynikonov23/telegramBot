@@ -29,20 +29,24 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()){
             Message message =  update.getMessage();
-            if (update.getMessage().getText().equals("/start")){
-                logger.debug(String.format("%s : ChatId=%s use /start", message.getChat().getUserName(), message.getChatId()));
-                sendMainMenuMessage(update);
-            }
-            if (update.getMessage().getText().equals("/help")){
-                logger.debug(String.format("%s : ChatId=%s use /help", message.getChat().getUserName(), message.getChatId()));
-                String text = "/start - главное меню\n/help - помощь";
-                sendMessage(message.getChatId(), text);
-                sendMainMenuMessage(update);
+            if (message.getText().equals("/start") || message.getText().equals("/help")){
+                if (message.getText().equals("/start")){
+                    logger.debug(String.format("%s : ChatId=%s use /start", message.getChat().getUserName(), message.getChatId()));
+                    sendMainMenuMessage(update);
+                }
+                if (message.getText().equals("/help")){
+                    logger.debug(String.format("%s : ChatId=%s use /help", message.getChat().getUserName(), message.getChatId()));
+                    String text = "/start - главное меню\n/help - помощь";
+                    sendMessage(message.getChatId(), text);
+                    sendMainMenuMessage(update);
 
+                }
+            } else {
+                sendMessage(message.getChatId(), "Неизвестная команда");
             }
+
         }
         if (update.hasCallbackQuery()){
-
             if (update.getCallbackQuery().getData().equals("chi-ci")){
 
             }
