@@ -1,6 +1,6 @@
 package org.company.tasks;
 
-public interface Task {
+public interface SectionManager {
     void question1();
     void question2();
     void question3();
