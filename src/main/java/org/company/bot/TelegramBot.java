@@ -1,7 +1,7 @@
 package org.company.bot;
 
 import org.apache.log4j.Logger;
-import org.company.utils.TaskReader;
+import org.company.utils.QuestionsLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -13,7 +13,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +25,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Value("${bot.token}")
     private String token;
     @Autowired
-    private TaskReader fileReader;
+    private QuestionsLoader questionsLoader;
 
 
 
@@ -53,8 +52,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         if (update.hasCallbackQuery()){
             if (update.getCallbackQuery().getData().equals("chi-ci")){
-                System.out.println("test");
-                fileReader.getAllObjects("C:\\Users\\nikonov.as\\IdeaProjects\\chineseBot\\src\\main\\resources\\media\\chi-ci\\tasks.csv");
+                System.out.println(questionsLoader.getChiCiQuestions());
             }
         }
 

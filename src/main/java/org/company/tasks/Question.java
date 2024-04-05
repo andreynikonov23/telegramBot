@@ -18,6 +18,11 @@ public class Question {
     private String answerB;
     private String answerC;
     private String answerD;
-    private char rightAnswer;
+    private String rightAnswer;
     private List<String> mediaFiles;
+
+    @Override
+    public String toString(){
+        return String.format("[%d, %s, %s, %s, %s, %s, %s]", id, question, answerA, answerB, answerC, answerD, rightAnswer);
+    }
 }
