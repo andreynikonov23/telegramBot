@@ -3,7 +3,6 @@ package org.company.utils;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.log4j.Logger;
 import org.company.tasks.Question;
