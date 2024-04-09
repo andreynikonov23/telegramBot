@@ -5,6 +5,7 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 import lombok.NoArgsConstructor;
 import org.apache.log4j.Logger;
+import org.company.tasks.AnswerType;
 import org.company.tasks.Question;
 import org.springframework.core.io.Resource;
 
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+//Удалить hi-ci list чтобы сразу брать из файла а не из озу
 @NoArgsConstructor
 public class QuestionsLoader {
     private static final Logger logger = Logger.getLogger(QuestionsLoader.class);
@@ -57,13 +59,18 @@ public class QuestionsLoader {
         for (String[] arr : strings){
             Question question = new Question();
             question.setId(id);
-            question.setQuestion(arr[0]);
+            question.setQuestionTxt(arr[0]);
             question.setAnswerA(arr[1]);
             question.setAnswerB(arr[2]);
             question.setAnswerC(arr[3]);
             question.setAnswerD(arr[4]);
             question.setRightAnswer(arr[5]);
             question.setMediaFiles(new ArrayList<>(List.of(arr[6], arr[7], arr[8])));
+            if (arr[9].equals("choice")){
+                question.setType(AnswerType.CHOICE);
+            } else if (arr[9].equals("input")){
+                question.setType(AnswerType.INPUT);
+            }
             questions.add(question);
             id++;
         }

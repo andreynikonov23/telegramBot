@@ -1,8 +1,10 @@
 package org.company.tasks;
 
-import org.company.utils.QuestionsLoader;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.Voice;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -15,12 +17,13 @@ public abstract class AbsSectionManager implements SectionManager {
     private Chat chat;
     private Update update;
     private List<Question> questions;
-    private final HashMap<Integer, Character> USER_ANSWERS = new HashMap<>();
+    private final HashMap<Question, Character> USER_ANSWERS = new HashMap<>();
     private final ArrayList<Integer> ORDER_QUESTIONS = new ArrayList<>();
 
-    public AbsSectionManager(Chat chat, Update update){
+    public AbsSectionManager(Chat chat, Update update, List<Question> questions){
         this.chat = chat;
         this.update = update;
+        this.questions = questions;
     }
 
     public Chat getChat() {
@@ -41,26 +44,59 @@ public abstract class AbsSectionManager implements SectionManager {
 
 
     @Override
-    public void shuffleOrderQuestions(){
-        for (int i = 0; i < questions.size(); i++) {
-            ORDER_QUESTIONS.add(i + 1);
+    public void start() {
+        initOrderQuestions();
+    }
+
+    @Override
+    public void initOrderQuestions(){
+        for (Question question : questions){
+            ORDER_QUESTIONS.add(question.getId());
         }
         Collections.shuffle(ORDER_QUESTIONS);
     }
-    @Override
-    public void addAnswer(Integer numberOfQuestion, Character answer){
-        USER_ANSWERS.put(numberOfQuestion, answer);
+
+    public void setAnswer(){
+
     }
 
     @Override
-    public void sendQuestion() {
-        if (ORDER_QUESTIONS.size() != 0){
-            Question question = questions.get(ORDER_QUESTIONS.get(0));
-            String questionTxt = question.getQuestion();
-            InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-            List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+    public SendMessage sendQuestion() {
+        SendMessage sendMessage = new SendMessage();
 
-            if (question.)
+        if (!(ORDER_QUESTIONS.isEmpty())){
+            int num = ORDER_QUESTIONS.get(0);
+            Question question = questions.get(num);
+            String questionTxt = question.getQuestionTxt();
+
+            if (question.getType() == AnswerType.CHOICE){
+                InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+                List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+                if (question.getMediaFiles() != null){
+                    //надо добавить сюда голосовые сообщения
+                    Message message = new Message();
+
+                    Voice voice = new Voice();
+
+                }
+
+                List<InlineKeyboardButton> row1 = new ArrayList<>(List.of(new InlineKeyboardButton().builder().text(question.getAnswerA()).callbackData("a-" + num + "-chi-ci").build()));
+                List<InlineKeyboardButton> row2 = new ArrayList<>(List.of(new InlineKeyboardButton().builder().text(question.getAnswerB()).callbackData("b-" + num + "-chi-ci").build()));
+                List<InlineKeyboardButton> row3 = new ArrayList<>(List.of(new InlineKeyboardButton().builder().text(question.getAnswerC()).callbackData("c-" + num + "-chi-ci").build()));
+                keyboard.add(row1);
+                keyboard.add(row2);
+                keyboard.add(row3);
+
+                if (question.getAnswerD() != null){
+                    List<InlineKeyboardButton> row4 = new ArrayList<>(List.of(new InlineKeyboardButton().builder().text(question.getAnswerD()).callbackData("d-" + num + "-chi-ci").build()));
+                    keyboard.add(row4);
+                }
+
+            }
+        } else{
+            //end
         }
+        return null;
     }
 }

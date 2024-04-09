@@ -4,15 +4,21 @@ import org.apache.log4j.Logger;
 import org.company.utils.QuestionsLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.io.Resource;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +30,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     private String name;
     @Value("${bot.token}")
     private String token;
+    @Autowired
+    ApplicationContext context;
     @Autowired
     private QuestionsLoader questionsLoader;
 
@@ -53,6 +61,20 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (update.hasCallbackQuery()){
             if (update.getCallbackQuery().getData().equals("chi-ci")){
                 System.out.println(questionsLoader.getChiCiQuestions());
+                Resource resource = context.getResource("classpath:/media/chi-ci/запись 1.mp3");
+                File file = null;
+                try {
+                    file = new File(resource.getFile().getAbsolutePath());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                SendVoice voice = new SendVoice();
+                voice.setVoice(new InputFile(file));
+                try {
+                    execute(voice);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 

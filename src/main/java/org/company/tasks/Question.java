@@ -13,16 +13,17 @@ import java.util.List;
 @EqualsAndHashCode
 public class Question {
     private int id;
-    private String question;
+    private String questionTxt;
     private String answerA;
     private String answerB;
     private String answerC;
     private String answerD;
     private String rightAnswer;
     private List<String> mediaFiles;
+    private AnswerType type;
 
     @Override
     public String toString(){
-        return String.format("[%d, %s, %s, %s, %s, %s, %s]", id, question, answerA, answerB, answerC, answerD, rightAnswer);
+        return String.format("[%d, %s, %s, %s, %s, %s, %s]", id, questionTxt, answerA, answerB, answerC, answerD, rightAnswer);
     }
 }
