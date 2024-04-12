@@ -6,6 +6,7 @@ import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.company.utils.ActiveTests;
 import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -55,6 +56,7 @@ public abstract class AbsSectionManager implements SectionManager {
             for (Map.Entry<Integer, String> entry : USER_ANSWERS.entrySet()){
                 str.append(entry.getKey()).append("--").append(entry.getValue()).append("\n");
             }
+            USER_ANSWERS.clear();
             ActiveTests.clear(chatId, this);
             bot.sendMessage(chatId, str.toString());
         } else{
@@ -72,16 +74,38 @@ public abstract class AbsSectionManager implements SectionManager {
 
     @Override
     public void setCallbackAnswer(Integer numberOfQuestion, String answer) {
+        sendCorrectAnswer(answer);
         ORDER_QUESTIONS.remove(0);
         USER_ANSWERS.put(numberOfQuestion, answer);
+
         sendQuestion();
     }
 
     @Override
     public void setTextAnswer(String text) {
+        sendCorrectAnswer(text);
         USER_ANSWERS.put(ORDER_QUESTIONS.get(0), text);
         ORDER_QUESTIONS.remove(0);
         sendQuestion();
+    }
+
+    @Override
+    public void result() {
+        for (int i = 0; i < questions.size(); i++) {
+            Question question = questions.get(i);
+            if (USER_ANSWERS.get(i).equals(question.getRightAnswer())){
+
+            }
+        }
+    }
+    public void sendCorrectAnswer(String answer){
+        int numberOfQuestion = ORDER_QUESTIONS.get(0);
+        String rightAnswer = questions.get(numberOfQuestion).getRightAnswer();
+        if (rightAnswer.equals(answer)){
+            bot.sendMessage(chatId, "Правильно");
+        } else {
+            bot.sendMessage(chatId, "Неправильно!\nПравильный ответ: " + rightAnswer);
+        }
     }
 
     public Question getActiveQuestion(){
@@ -111,6 +135,7 @@ public abstract class AbsSectionManager implements SectionManager {
         message.setText(text);
         message.setChatId(chatId);
         message.setReplyMarkup(markup);
+
 
         try {
             bot.execute(message);

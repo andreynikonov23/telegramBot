@@ -3,6 +3,8 @@ package org.company.utils;
 import org.company.bot.TelegramBot;
 import org.company.model.AnswerType;
 import org.company.service.*;
+import org.telegram.telegrambots.meta.api.objects.MaybeInaccessibleMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 
 
 public class AnswerReceiver {
@@ -21,7 +23,9 @@ public class AnswerReceiver {
         this.bot = bot;
     }
 
-    public void setCallbackAnswer(long chatId, String answerTag){
+    public void setCallbackAnswer(MaybeInaccessibleMessage message, String answerTag){
+        long chatId = message.getChatId();
+        bot.deleteMessage(message);
         String[] arr = answerTag.split("_");
         String answer = arr[0];
         int numberOfQuestion = Integer.parseInt(arr[1]);

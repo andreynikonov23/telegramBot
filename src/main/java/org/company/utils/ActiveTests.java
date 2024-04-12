@@ -13,6 +13,7 @@ public class ActiveTests {
     private ActiveTests(){}
 
     public static void saveTest(Long chatId, AbsSectionManager sectionManager){
+        System.out.println(saveTests);
         if (saveTests.containsKey(chatId)){
             saveTests.get(chatId).add(sectionManager);
         } else {
@@ -22,6 +23,8 @@ public class ActiveTests {
         }
     }
     public static void addActiveTest(Long chatId, AbsSectionManager sectionManager){
+        System.out.println(activeTests);
+        System.out.println(saveTests);
         activeTests.put(chatId, sectionManager);
     }
     public static Set<AbsSectionManager> getSectionManagersSet(long chatId){

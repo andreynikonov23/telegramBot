@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -74,8 +76,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                     fabric.getSpecialFinalSectionManager(chatId).start();
                 case ("u-final") ->
                     fabric.getUFinalSectionManager(chatId).start();
-                default -> receiver.setCallbackAnswer(chatId, callBack);
+                default -> receiver.setCallbackAnswer(update.getCallbackQuery().getMessage(), callBack);
             }
+
         }
 
     }
@@ -95,7 +98,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText(text);
-
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
@@ -143,12 +145,30 @@ public class TelegramBot extends TelegramLongPollingBot {
         sendMessage.setReplyMarkup(markup);
 
         try {
+
             execute(sendMessage);
         } catch (TelegramApiException e) {
             logger.error(String.format("%s : ChatId=%s TelegramApiException in sendMainMenuMessage()", update.getMessage().getChat().getUserName(), update.getMessage().getChatId()));
             throw new RuntimeException(e);
         }
+
     }
-
-
+    public void deleteMessage(MaybeInaccessibleMessage message){
+        DeleteMessage deleteMessage = new DeleteMessage();
+        deleteMessage.setChatId(message.getChatId());
+        deleteMessage.setMessageId(message.getMessageId());
+        EditMessageText editMessageText = new EditMessageText();
+        editMessageText.setChatId(message.getChatId());
+        editMessageText.setMessageId(message.getMessageId());
+        try {
+            editMessageText.setReplyMarkup(new InlineKeyboardMarkup());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        try {
+            execute(editMessageText);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
