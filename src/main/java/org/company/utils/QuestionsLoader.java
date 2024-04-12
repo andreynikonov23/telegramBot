@@ -5,10 +5,11 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 import lombok.NoArgsConstructor;
 import org.apache.log4j.Logger;
-import org.company.tasks.AnswerType;
-import org.company.tasks.Question;
+import org.company.model.AnswerType;
+import org.company.model.Question;
 import org.springframework.core.io.Resource;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,42 +20,71 @@ import java.util.List;
 @NoArgsConstructor
 public class QuestionsLoader {
     private static final Logger logger = Logger.getLogger(QuestionsLoader.class);
-    private Resource chiCiLocation;
-    private List<Question> chiCiQuestions;
+    private Resource media;
 
-    public QuestionsLoader(Resource chiCiLocation) {
-        this.chiCiLocation = chiCiLocation;
-        initChiCiQuestionsList();
+
+    public QuestionsLoader(Resource media) throws IOException {
+        this.media = media;
     }
 
-    public Resource getChiCiLocation() {
-        return chiCiLocation;
+    public Resource getMedia() {
+        return media;
     }
 
-    public List<Question> getChiCiQuestions() {
-        return chiCiQuestions;
+    public void setMedia(Resource media) {
+        this.media = media;
     }
 
-    public void setChiCiLocation(Resource chiCiLocation) {
-        this.chiCiLocation = chiCiLocation;
-    }
 
     //Добавить проверку
-    public void initChiCiQuestionsList() {
-        logger.debug("/chi-ci/tasks.csv reading");
-        chiCiQuestions = new ArrayList<>();
-        List<String[]> strings;
-        try(CSVReader reader = new CSVReaderBuilder(new FileReader(chiCiLocation.getFile().getAbsolutePath())).withSkipLines(1).build()) {;
-            strings = reader.readAll();
-        } catch (IOException | CsvException e) {
-            logger.error("/chi-ci/tasks.csv reading error\n" + Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException(e);
-        }
-        parseToQuestionList(strings, chiCiQuestions);
-        logger.debug("question for chi-ci have been loaded");
+    public List<Question> getChiCiQuestionsList() {
+        return getQuestionList(AnswerReceiver.CHI_CI_TAG);
+    }
+    public List<Question> getAspiratedInitialsQuestionsList(){
+        return getQuestionList(AnswerReceiver.ASPIRATED_INITIALS_TAG);
+    }
+    public List<Question> getBackLangFinalsQuestionsList(){
+        return getQuestionList(AnswerReceiver.BACK_LANG_FINALS_TAG);
+    }
+    public List<Question> getEFinalQuestionsList(){
+        return getQuestionList(AnswerReceiver.E_FINAL_TAG);
+    }
+    public List<Question> getJqxInitialsQuestionsList(){
+        return getQuestionList(AnswerReceiver.JQX_INITIALS_TAG);
+    }
+    public List<Question> getRInitialsQuestionsList(){
+        return getQuestionList(AnswerReceiver.R_INITIAL_TAG);
+    }
+    public List<Question> getSpecialFinalQuestionsList(){
+        return getQuestionList(AnswerReceiver.SPECIAL_FINALS_TAG);
+    }
+    public List<Question> getIanIangQuestionsList(){
+        return getQuestionList(AnswerReceiver.IAN_IANG_TAG);
+    }
+    public List<Question> getUFinalQuestionsList(){
+        return getQuestionList(AnswerReceiver.U_FINAL_TAG);
     }
 
-    private void parseToQuestionList(List<String[]> strings, List<Question> questions){
+    private List<Question> getQuestionList(String tag) {
+        String dir = "/" + tag + "/";
+        logger.debug(dir + "tasks.csv reading");
+        List<Question> questions = new ArrayList<>();
+        List<String[]> strings;
+        try(CSVReader reader = new CSVReaderBuilder(new FileReader(media.getFile().getAbsolutePath() + dir + "tasks.csv")).withSkipLines(1).build()) {
+            strings = reader.readAll();
+        } catch (IOException | CsvException e) {
+            logger.error(dir + "tasks.csv reading error\n" + Arrays.toString(e.getStackTrace()));
+            throw new RuntimeException(e);
+        }
+        try {
+            parseToQuestionList(strings, questions, dir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        logger.debug("question for chi-ci have been loaded");
+        return questions;
+    }
+    private void parseToQuestionList(List<String[]> strings, List<Question> questions, String dir) throws IOException {
         int id = 1;
         for (String[] arr : strings){
             Question question = new Question();
@@ -64,15 +94,35 @@ public class QuestionsLoader {
             question.setAnswerB(arr[2]);
             question.setAnswerC(arr[3]);
             question.setAnswerD(arr[4]);
-            question.setRightAnswer(arr[5]);
-            question.setMediaFiles(new ArrayList<>(List.of(arr[6], arr[7], arr[8])));
-            if (arr[9].equals("choice")){
+            question.setAnswerE(arr[5]);
+            question.setRightAnswer(arr[6]);
+
+            loadFiles(arr, question, dir);
+
+            if (arr[10].equals("choice")){
                 question.setType(AnswerType.CHOICE);
-            } else if (arr[9].equals("input")){
+            } else if (arr[10].equals("input")){
                 question.setType(AnswerType.INPUT);
             }
             questions.add(question);
             id++;
         }
     }
+    private void loadFiles(String[] arr, Question question, String dir) throws IOException {
+        List<File> mediaFiles = new ArrayList<>();
+        if (arr[7] != null){
+            File file = new File(media.getFile().getAbsolutePath() + dir + arr[7]);
+            mediaFiles.add(file);
+        }
+        if (arr[8] != null){
+            File file = new File(media.getFile().getAbsolutePath() + dir + arr[8]);
+            mediaFiles.add(file);
+        }
+        if (arr[9] != null){
+            File file = new File(media.getFile().getAbsolutePath() + dir + arr[9]);
+            mediaFiles.add(file);
+        }
+        question.setMediaFiles(mediaFiles);
+    }
+
 }

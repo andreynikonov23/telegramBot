@@ -1,24 +1,19 @@
 package org.company.bot;
 
 import org.apache.log4j.Logger;
-import org.company.utils.QuestionsLoader;
+import org.company.service.SectionFabric;
+import org.company.utils.AnswerReceiver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.io.Resource;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,9 +26,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Value("${bot.token}")
     private String token;
     @Autowired
-    ApplicationContext context;
+    private SectionFabric fabric;
     @Autowired
-    private QuestionsLoader questionsLoader;
+    private AnswerReceiver receiver;
 
 
 
@@ -54,27 +49,32 @@ public class TelegramBot extends TelegramLongPollingBot {
 
                 }
             } else {
-                sendMessage(message.getChatId(), "Неизвестная команда");
+                receiver.setText(message.getChatId(), message.getText());
             }
-
         }
         if (update.hasCallbackQuery()){
-            if (update.getCallbackQuery().getData().equals("chi-ci")){
-                System.out.println(questionsLoader.getChiCiQuestions());
-                Resource resource = context.getResource("classpath:/media/chi-ci/запись 1.mp3");
-                File file = null;
-                try {
-                    file = new File(resource.getFile().getAbsolutePath());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                SendVoice voice = new SendVoice();
-                voice.setVoice(new InputFile(file));
-                try {
-                    execute(voice);
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
+            long chatId = update.getCallbackQuery().getMessage().getChatId();
+            String callBack = update.getCallbackQuery().getData();
+            switch (callBack) {
+                case ("chi-ci") ->
+                    fabric.getChiCiSection(chatId).start();
+                case ("back-lang-finals") ->
+                    fabric.getBackLangFinalsSectionManager(chatId).start();
+                case ("aspirated-initials") ->
+                    fabric.getAspiratedInitialsSectionManager(chatId).start();
+                case ("e-final") ->
+                    fabric.getEFinalSectionManager(chatId).start();
+                case ("ian-iang") ->
+                    fabric.getIanIangSectionManager(chatId).start();
+                case ("jqx-initials") ->
+                    fabric.getJqxInitialsSectionManager(chatId).start();
+                case ("r-initials") ->
+                    fabric.getRInitialsSectionManager(chatId).start();
+                case ("special-final") ->
+                    fabric.getSpecialFinalSectionManager(chatId).start();
+                case ("u-final") ->
+                    fabric.getUFinalSectionManager(chatId).start();
+                default -> receiver.setCallbackAnswer(chatId, callBack);
             }
         }
 
@@ -91,7 +91,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
 
-    private void sendMessage (Long chatId, String text){
+    public void sendMessage (Long chatId, String text){
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText(text);
@@ -102,7 +102,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             throw new RuntimeException(e);
         }
     }
-    private void sendMainMenuMessage(Update update){
+    public void sendMainMenuMessage(Update update){
         String text = "Добро пожаловать в фонетический тренажер основ китайского.\nВыберете раздел который хотите потренировать.\n/help - помощь.";
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();

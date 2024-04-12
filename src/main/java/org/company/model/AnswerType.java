@@ -1,4 +1,4 @@
-package org.company.tasks;
+package org.company.model;
 
 public enum AnswerType {
     CHOICE,

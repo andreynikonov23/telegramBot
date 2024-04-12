@@ -1,10 +1,11 @@
-package org.company.tasks;
+package org.company.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.File;
 import java.util.List;
 
 @Data
@@ -18,12 +19,13 @@ public class Question {
     private String answerB;
     private String answerC;
     private String answerD;
+    private String answerE;
     private String rightAnswer;
-    private List<String> mediaFiles;
+    private List<File> mediaFiles;
     private AnswerType type;
 
     @Override
     public String toString(){
-        return String.format("[%d, %s, %s, %s, %s, %s, %s]", id, questionTxt, answerA, answerB, answerC, answerD, rightAnswer);
+        return String.format("[%d, %s, %s, %s, %s, %s, %s, %s]", id, questionTxt, answerA, answerB, answerC, answerD, answerE, rightAnswer);
     }
 }
