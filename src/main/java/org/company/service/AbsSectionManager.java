@@ -6,7 +6,6 @@ import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.company.utils.ActiveTests;
 import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
-import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -20,8 +19,10 @@ import java.util.*;
 public abstract class AbsSectionManager implements SectionManager {
     private String tag;
     private long chatId;
+    private int messageId;
     private TelegramBot bot;
     private List<Question> questions;
+    private int rightAnswersCount;
     private final HashMap<Integer, String> USER_ANSWERS = new HashMap<>();
     private final ArrayList<Integer> ORDER_QUESTIONS = new ArrayList<>();
 
@@ -29,6 +30,7 @@ public abstract class AbsSectionManager implements SectionManager {
         this.chatId = chatId;
         this.questions = questions;
         this.bot = bot;
+        rightAnswersCount = 0;
     }
 
 
@@ -52,15 +54,10 @@ public abstract class AbsSectionManager implements SectionManager {
     @Override
     public void sendQuestion() {
         if (ORDER_QUESTIONS.isEmpty()){
-            StringBuilder str = new StringBuilder();
-            for (Map.Entry<Integer, String> entry : USER_ANSWERS.entrySet()){
-                str.append(entry.getKey()).append("--").append(entry.getValue()).append("\n");
-            }
+            result();
             USER_ANSWERS.clear();
             ActiveTests.clear(chatId, this);
-            bot.sendMessage(chatId, str.toString());
         } else{
-            // добавить проверки на choice и input
             int num = ORDER_QUESTIONS.get(0);
             Question question = questions.get(num);
             if (question.getType() == AnswerType.CHOICE){
@@ -73,7 +70,18 @@ public abstract class AbsSectionManager implements SectionManager {
     }
 
     @Override
-    public void setCallbackAnswer(Integer numberOfQuestion, String answer) {
+    public void setCallbackAnswer(Integer messageId, Integer numberOfQuestion, String answer) {
+        Question question = questions.get(numberOfQuestion);
+        String answerTxt;
+        switch (answer) {
+            case "a" -> answerTxt = question.getAnswerA();
+            case "b" -> answerTxt = question.getAnswerB();
+            case "c" -> answerTxt = question.getAnswerC();
+            case "d" -> answerTxt = question.getAnswerD();
+            case "e" -> answerTxt = question.getAnswerE();
+            default -> answerTxt = answer;
+        }
+        bot.editMessage(chatId, messageId, question.getQuestionTxt(), answerTxt);
         sendCorrectAnswer(answer);
         ORDER_QUESTIONS.remove(0);
         USER_ANSWERS.put(numberOfQuestion, answer);
@@ -91,17 +99,41 @@ public abstract class AbsSectionManager implements SectionManager {
 
     @Override
     public void result() {
+        StringBuilder resultMessageText = new StringBuilder();
         for (int i = 0; i < questions.size(); i++) {
             Question question = questions.get(i);
+            String questionAnswers = String.format("%d. %s:\n", i + 1, question.getQuestionTxt(), question.getAnswerA(), question.getAnswerB(), question.getAnswerC());
+            resultMessageText.append(questionAnswers);
+            if (!(question.getAnswerA().equals(""))){
+                resultMessageText.append(question.getAnswerA()).append("\n");
+            }
+            if (!(question.getAnswerB().equals(""))){
+                resultMessageText.append(question.getAnswerB()).append("\n");
+            }
+            if (!(question.getAnswerC().equals(""))){
+                resultMessageText.append(question.getAnswerC()).append("\n");
+            }
+            if (!(question.getAnswerD().equals(""))){
+                resultMessageText.append(question.getAnswerD()).append("\n");
+            }
+            if (!(question.getAnswerE().equals(""))){
+                resultMessageText.append(question.getAnswerE()).append("\n");
+            }
+            resultMessageText.append(String.format("Вы ответили: %s. ", USER_ANSWERS.get(i)));
             if (USER_ANSWERS.get(i).equals(question.getRightAnswer())){
-
+                resultMessageText.append("Это правильно.\n\n");
+            } else {
+                resultMessageText.append(String.format("Это не правильный ответ. Правильный ответ: %s\n\n", question.getRightAnswer()));
             }
         }
+        resultMessageText.append("Правильных ответов: %d/%d", rightAnswersCount, questions.size());
+        bot.sendMessage(chatId, resultMessageText.toString());
     }
     public void sendCorrectAnswer(String answer){
         int numberOfQuestion = ORDER_QUESTIONS.get(0);
         String rightAnswer = questions.get(numberOfQuestion).getRightAnswer();
         if (rightAnswer.equals(answer)){
+            rightAnswersCount++;
             bot.sendMessage(chatId, "Правильно");
         } else {
             bot.sendMessage(chatId, "Неправильно!\nПравильный ответ: " + rightAnswer);
@@ -148,8 +180,10 @@ public abstract class AbsSectionManager implements SectionManager {
         }
     }
     private void sendInputQuestion(Question question, int num){
-
         bot.sendMessage(chatId, question.getQuestionTxt());
+        if (!(question.getMediaFiles().isEmpty())){
+            sendAudio(question);
+        }
     }
     private void sendAudio(Question question){
         for(File file : question.getMediaFiles()){

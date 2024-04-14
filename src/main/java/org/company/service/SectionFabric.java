@@ -4,7 +4,6 @@ import lombok.Data;
 import org.company.bot.TelegramBot;
 import org.company.utils.QuestionsLoader;
 
-import java.io.IOException;
 
 @Data
 public class SectionFabric {

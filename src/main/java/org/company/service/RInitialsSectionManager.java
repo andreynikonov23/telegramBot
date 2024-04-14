@@ -10,9 +10,4 @@ public class RInitialsSectionManager extends AbsSectionManager{
         super(chatId, questions, bot);
         setTag("r-initials");
     }
-
-    @Override
-    public void result() {
-
-    }
 }

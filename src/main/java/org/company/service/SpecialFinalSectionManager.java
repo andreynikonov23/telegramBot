@@ -10,9 +10,4 @@ public class SpecialFinalSectionManager extends AbsSectionManager{
         super(chatId, questions, bot);
         setTag("special-final");
     }
-
-    @Override
-    public void result() {
-
-    }
 }

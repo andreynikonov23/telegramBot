@@ -2,17 +2,16 @@ package org.company.bot;
 
 import org.apache.log4j.Logger;
 import org.company.service.SectionFabric;
+import org.company.utils.ActiveTests;
 import org.company.utils.AnswerReceiver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -58,8 +57,13 @@ public class TelegramBot extends TelegramLongPollingBot {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             String callBack = update.getCallbackQuery().getData();
             switch (callBack) {
-                case ("chi-ci") ->
-                    fabric.getChiCiSection(chatId).start();
+                case (AnswerReceiver.CHI_CI_TAG) ->{
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.CHI_CI_TAG) == null){
+                        fabric.getChiCiSection(chatId).start();
+                    } else {
+                        sendContinueMessage(chatId);
+                    }
+                }
                 case ("back-lang-finals") ->
                     fabric.getBackLangFinalsSectionManager(chatId).start();
                 case ("aspirated-initials") ->
@@ -76,7 +80,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     fabric.getSpecialFinalSectionManager(chatId).start();
                 case ("u-final") ->
                     fabric.getUFinalSectionManager(chatId).start();
-                default -> receiver.setCallbackAnswer(update.getCallbackQuery().getMessage(), callBack);
+                default -> receiver.setCallbackAnswer(update.getCallbackQuery().getMessage().getChatId(), update.getCallbackQuery().getMessage().getMessageId(), callBack);
             }
 
         }
@@ -101,6 +105,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -151,22 +156,34 @@ public class TelegramBot extends TelegramLongPollingBot {
             logger.error(String.format("%s : ChatId=%s TelegramApiException in sendMainMenuMessage()", update.getMessage().getChat().getUserName(), update.getMessage().getChatId()));
             throw new RuntimeException(e);
         }
-
     }
-    public void deleteMessage(MaybeInaccessibleMessage message){
-        DeleteMessage deleteMessage = new DeleteMessage();
-        deleteMessage.setChatId(message.getChatId());
-        deleteMessage.setMessageId(message.getMessageId());
-        EditMessageText editMessageText = new EditMessageText();
-        editMessageText.setChatId(message.getChatId());
-        editMessageText.setMessageId(message.getMessageId());
+    public void sendContinueMessage(long chatId){
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText("У вас есть незавершенный тест в этом разделе, желаете продолжить?");
+
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(new InlineKeyboardButton().builder().text("Да").callbackData("yes").build());
+        row.add(new InlineKeyboardButton().builder().text("Нет").callbackData("no").build());
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        markup.setKeyboard(keyboard);
+
+        message.setReplyMarkup(markup);
+    }
+    public void editMessage(long chatId, int messageId, String question, String answer){
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId);
+        message.setMessageId(messageId);
+        message.setText(question + "\nОтвет: " + answer);
+        List<InlineKeyboardButton> emptyRow = new ArrayList<>();
+        List<List<InlineKeyboardButton>> emptyKeyboard = new ArrayList<>();
+        emptyKeyboard.add(emptyRow);
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        markup.setKeyboard(emptyKeyboard);
+        message.setReplyMarkup(markup);
         try {
-            editMessageText.setReplyMarkup(new InlineKeyboardMarkup());
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        try {
-            execute(editMessageText);
+            execute(message);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }

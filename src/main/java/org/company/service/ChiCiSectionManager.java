@@ -10,9 +10,4 @@ public class ChiCiSectionManager extends AbsSectionManager{
         super(chatId, questions, bot);
         setTag("chi-ci");
     }
-
-    @Override
-    public void result() {
-
-    }
 }

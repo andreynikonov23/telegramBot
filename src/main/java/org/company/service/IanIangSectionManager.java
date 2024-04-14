@@ -10,9 +10,4 @@ public class IanIangSectionManager extends AbsSectionManager {
         super(chatId, questions, bot);
         setTag("ian-iang");
     }
-
-    @Override
-    public void result() {
-
-    }
 }

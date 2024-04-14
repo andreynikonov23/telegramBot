@@ -10,9 +10,4 @@ public class JqxInitialsSectionManager extends AbsSectionManager{
         super(chatId, questions, bot);
         setTag("jqx-initials");
     }
-
-    @Override
-    public void result() {
-
-    }
 }

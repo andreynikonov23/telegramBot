@@ -10,9 +10,4 @@ public class BackLangFinalsSectionManager extends AbsSectionManager{
         super(chatId, questions, bot);
         setTag("back-lang-finals");
     }
-
-    @Override
-    public void result() {
-
-    }
 }

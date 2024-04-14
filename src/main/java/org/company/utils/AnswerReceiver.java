@@ -23,9 +23,7 @@ public class AnswerReceiver {
         this.bot = bot;
     }
 
-    public void setCallbackAnswer(MaybeInaccessibleMessage message, String answerTag){
-        long chatId = message.getChatId();
-        bot.deleteMessage(message);
+    public void setCallbackAnswer(long chatId, int messageId, String answerTag){
         String[] arr = answerTag.split("_");
         String answer = arr[0];
         int numberOfQuestion = Integer.parseInt(arr[1]);
@@ -36,7 +34,7 @@ public class AnswerReceiver {
                 for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
                     if (sectionManager.getTag().equals(CHI_CI_TAG)){
                         chiCiSectionManager = (ChiCiSectionManager) sectionManager;
-                        chiCiSectionManager.setCallbackAnswer(numberOfQuestion, answer);
+                        chiCiSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
                     }
                 }
             }
@@ -45,7 +43,7 @@ public class AnswerReceiver {
                 for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
                     if (sectionManager.getTag().equals(ASPIRATED_INITIALS_TAG)){
                         aspiratedInitialsSectionManager = (AspiratedInitialsSectionManager) sectionManager;
-                        aspiratedInitialsSectionManager.setCallbackAnswer(numberOfQuestion, answer);
+                        aspiratedInitialsSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
                     }
                 }
             }
@@ -54,7 +52,7 @@ public class AnswerReceiver {
                 for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
                     if (sectionManager.getTag().equals(BACK_LANG_FINALS_TAG)){
                         backLangFinalsSectionManager = (BackLangFinalsSectionManager) sectionManager;
-                        backLangFinalsSectionManager.setCallbackAnswer(numberOfQuestion, answer);
+                        backLangFinalsSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
                     }
                 }
             }
@@ -63,7 +61,7 @@ public class AnswerReceiver {
                 for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
                     if (sectionManager.getTag().equals(E_FINAL_TAG)){
                         eFinalSectionManager = (EFinalSectionManager) sectionManager;
-                        eFinalSectionManager.setCallbackAnswer(numberOfQuestion, answer);
+                        eFinalSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
                     }
                 }
             }
@@ -72,7 +70,7 @@ public class AnswerReceiver {
                 for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
                     if (sectionManager.getTag().equals(IAN_IANG_TAG)){
                         ianIangSectionManager = (IanIangSectionManager) sectionManager;
-                        ianIangSectionManager.setCallbackAnswer(numberOfQuestion, answer);
+                        ianIangSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
                     }
                 }
             }
@@ -81,7 +79,7 @@ public class AnswerReceiver {
                 for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
                     if (sectionManager.getTag().equals(JQX_INITIALS_TAG)){
                         jqxInitialsSectionManager = (JqxInitialsSectionManager) sectionManager;
-                        jqxInitialsSectionManager.setCallbackAnswer(numberOfQuestion, answer);
+                        jqxInitialsSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
                     }
                 }
             }
@@ -90,7 +88,7 @@ public class AnswerReceiver {
                 for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
                     if (sectionManager.getTag().equals(R_INITIAL_TAG)){
                         rInitialsSectionManager = (RInitialsSectionManager) sectionManager;
-                        rInitialsSectionManager.setCallbackAnswer(numberOfQuestion, answer);
+                        rInitialsSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
                     }
                 }
             }
@@ -99,7 +97,7 @@ public class AnswerReceiver {
                 for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
                     if (sectionManager.getTag().equals(SPECIAL_FINALS_TAG)){
                         specialFinalSectionManager = (SpecialFinalSectionManager) sectionManager;
-                        specialFinalSectionManager.setCallbackAnswer(numberOfQuestion, answer);
+                        specialFinalSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
                     }
                 }
             }
@@ -108,7 +106,7 @@ public class AnswerReceiver {
                 for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
                     if (sectionManager.getTag().equals(U_FINAL_TAG)){
                         uFinalSectionManager = (UFinalSectionManager) sectionManager;
-                        uFinalSectionManager.setCallbackAnswer(numberOfQuestion, answer);
+                        uFinalSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
                     }
                 }
             }

@@ -10,9 +10,4 @@ public class EFinalSectionManager extends AbsSectionManager{
         super(chatId, questions, bot);
         setTag("e-final");
     }
-
-    @Override
-    public void result() {
-
-    }
 }

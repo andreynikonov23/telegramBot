@@ -10,9 +10,4 @@ public class AspiratedInitialsSectionManager extends AbsSectionManager{
         super(chatId, questions, bot);
         setTag("aspirated-initials");
     }
-
-    @Override
-    public void result() {
-
-    }
 }

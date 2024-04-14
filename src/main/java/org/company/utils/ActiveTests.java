@@ -33,6 +33,17 @@ public class ActiveTests {
     public static AbsSectionManager getActiveSectionManager(long chatId){
         return activeTests.get(chatId);
     }
+    public static AbsSectionManager getIncompleteTest(long chatId, String tag){
+        AbsSectionManager incompleteTest = null;
+        if (saveTests.containsKey(chatId)){
+            for (AbsSectionManager test : saveTests.get(chatId)){
+                if (test.getTag().equals(tag)){
+                    incompleteTest = test;
+                }
+            }
+        }
+        return incompleteTest;
+    }
     public static void clear(Long chatId, AbsSectionManager sectionManager){
         saveTests.get(chatId).remove(sectionManager);
         activeTests.remove(chatId);
