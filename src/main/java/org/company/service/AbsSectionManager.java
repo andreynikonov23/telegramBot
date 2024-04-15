@@ -42,6 +42,10 @@ public abstract class AbsSectionManager implements SectionManager {
         initOrderQuestions();
         sendQuestion();
     }
+    public void continueTest() {
+        ActiveTests.addActiveTest(chatId, this);
+        sendQuestion();
+    }
 
     @Override
     public void initOrderQuestions(){
@@ -55,8 +59,6 @@ public abstract class AbsSectionManager implements SectionManager {
     public void sendQuestion() {
         if (ORDER_QUESTIONS.isEmpty()){
             result();
-            USER_ANSWERS.clear();
-            ActiveTests.clear(chatId, this);
         } else{
             int num = ORDER_QUESTIONS.get(0);
             Question question = questions.get(num);
@@ -82,7 +84,7 @@ public abstract class AbsSectionManager implements SectionManager {
             default -> answerTxt = answer;
         }
         bot.editMessage(chatId, messageId, question.getQuestionTxt(), answerTxt);
-        sendCorrectAnswer(answer);
+        check(answer);
         ORDER_QUESTIONS.remove(0);
         USER_ANSWERS.put(numberOfQuestion, answer);
 
@@ -91,8 +93,8 @@ public abstract class AbsSectionManager implements SectionManager {
 
     @Override
     public void setTextAnswer(String text) {
-        sendCorrectAnswer(text);
-        USER_ANSWERS.put(ORDER_QUESTIONS.get(0), text);
+        check(text);
+        USER_ANSWERS.put(ORDER_QUESTIONS.get(0), text.trim().toLowerCase());
         ORDER_QUESTIONS.remove(0);
         sendQuestion();
     }
@@ -120,19 +122,21 @@ public abstract class AbsSectionManager implements SectionManager {
                 resultMessageText.append(question.getAnswerE()).append("\n");
             }
             resultMessageText.append(String.format("Вы ответили: %s. ", USER_ANSWERS.get(i)));
-            if (USER_ANSWERS.get(i).equals(question.getRightAnswer())){
+            if (USER_ANSWERS.get(i).toLowerCase().replaceAll(" ", "").equals(question.getRightAnswer())){
                 resultMessageText.append("Это правильно.\n\n");
             } else {
                 resultMessageText.append(String.format("Это не правильный ответ. Правильный ответ: %s\n\n", question.getRightAnswer()));
             }
         }
-        resultMessageText.append("Правильных ответов: %d/%d", rightAnswersCount, questions.size());
+        resultMessageText.append(String.format("Правильных ответов: %d из %d", rightAnswersCount, questions.size()));
+        USER_ANSWERS.clear();
+        ActiveTests.clear(chatId, tag);
         bot.sendMessage(chatId, resultMessageText.toString());
     }
-    public void sendCorrectAnswer(String answer){
+    public void check(String answer){
         int numberOfQuestion = ORDER_QUESTIONS.get(0);
         String rightAnswer = questions.get(numberOfQuestion).getRightAnswer();
-        if (rightAnswer.equals(answer)){
+        if (rightAnswer.equals(answer.toLowerCase().replaceAll(" ", ""))){
             rightAnswersCount++;
             bot.sendMessage(chatId, "Правильно");
         } else {

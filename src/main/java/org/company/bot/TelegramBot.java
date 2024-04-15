@@ -58,28 +58,100 @@ public class TelegramBot extends TelegramLongPollingBot {
             String callBack = update.getCallbackQuery().getData();
             switch (callBack) {
                 case (AnswerReceiver.CHI_CI_TAG) ->{
-                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.CHI_CI_TAG) == null){
-                        fabric.getChiCiSection(chatId).start();
+
+                }
+                case (AnswerReceiver.BACK_LANG_FINALS_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.BACK_LANG_FINALS_TAG) == null){
+                        fabric.getBackLangFinalsSectionManager(chatId).start();
                     } else {
-                        sendContinueMessage(chatId);
+                        sendContinueMessage(chatId, AnswerReceiver.BACK_LANG_FINALS_TAG);
                     }
                 }
-                case ("back-lang-finals") ->
-                    fabric.getBackLangFinalsSectionManager(chatId).start();
-                case ("aspirated-initials") ->
-                    fabric.getAspiratedInitialsSectionManager(chatId).start();
-                case ("e-final") ->
-                    fabric.getEFinalSectionManager(chatId).start();
-                case ("ian-iang") ->
-                    fabric.getIanIangSectionManager(chatId).start();
-                case ("jqx-initials") ->
-                    fabric.getJqxInitialsSectionManager(chatId).start();
-                case ("r-initials") ->
-                    fabric.getRInitialsSectionManager(chatId).start();
-                case ("special-final") ->
-                    fabric.getSpecialFinalSectionManager(chatId).start();
-                case ("u-final") ->
-                    fabric.getUFinalSectionManager(chatId).start();
+                case (AnswerReceiver.ASPIRATED_INITIALS_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.ASPIRATED_INITIALS_TAG) == null){
+                        fabric.getAspiratedInitialsSectionManager(chatId).start();
+                    } else {
+                        sendContinueMessage(chatId, AnswerReceiver.ASPIRATED_INITIALS_TAG);
+                    }
+                }
+                case (AnswerReceiver.E_FINAL_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.E_FINAL_TAG) == null){
+                        fabric.getEFinalSectionManager(chatId).start();
+                    } else {
+                        sendContinueMessage(chatId, AnswerReceiver.E_FINAL_TAG);
+                    }
+                }
+                case (AnswerReceiver.IAN_IANG_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.IAN_IANG_TAG) == null){
+                        fabric.getIanIangSectionManager(chatId).start();
+                    } else {
+                        sendContinueMessage(chatId, AnswerReceiver.IAN_IANG_TAG);
+                    }
+                }
+                case (AnswerReceiver.JQX_INITIALS_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.JQX_INITIALS_TAG) == null){
+                        fabric.getJqxInitialsSectionManager(chatId).start();
+                    } else {
+                        sendContinueMessage(chatId, AnswerReceiver.JQX_INITIALS_TAG);
+                    }
+                }
+                case (AnswerReceiver.R_INITIAL_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.R_INITIAL_TAG) == null){
+                        fabric.getRInitialsSectionManager(chatId).start();
+                    } else {
+                        sendContinueMessage(chatId, AnswerReceiver.R_INITIAL_TAG);
+                    }
+                }
+                case (AnswerReceiver.SPECIAL_FINALS_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.SPECIAL_FINALS_TAG) == null){
+                        fabric.getSpecialFinalSectionManager(chatId).start();
+                    } else {
+                        sendContinueMessage(chatId, AnswerReceiver.SPECIAL_FINALS_TAG);
+                    }
+                }
+                case ("u-final") -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.U_FINAL_TAG) == null){
+                        fabric.getUFinalSectionManager(chatId).start();
+                    } else {
+                        sendContinueMessage(chatId, AnswerReceiver.U_FINAL_TAG);
+                    }
+                }
+                case ("yes-chi-ci") ->
+                    ActiveTests.getIncompleteTest(chatId, AnswerReceiver.CHI_CI_TAG).continueTest();
+                case ("no-chi-ci") ->
+                        fabric.getChiCiSection(chatId).start();
+                case ("yes-back-lang-finals") ->
+                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.BACK_LANG_FINALS_TAG).continueTest();
+                case ("no-back-lang-finals") ->
+                        fabric.getBackLangFinalsSectionManager(chatId).start();
+                case ("yes-aspirated-initials") ->
+                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.ASPIRATED_INITIALS_TAG).continueTest();
+                case ("no-aspirated-initials") ->
+                        fabric.getAspiratedInitialsSectionManager(chatId).start();
+                case ("yes-e-final") ->
+                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.E_FINAL_TAG).continueTest();
+                case ("no-e-final") ->
+                        fabric.getEFinalSectionManager(chatId).start();
+                case ("yes-ian-iang") ->
+                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.IAN_IANG_TAG).continueTest();
+                case ("no-ian-iang") ->
+                        fabric.getIanIangSectionManager(chatId).start();
+                case ("yes-jqx-initials") ->
+                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.JQX_INITIALS_TAG).continueTest();
+                case ("no-jqx-initials") ->
+                        fabric.getJqxInitialsSectionManager(chatId).start();
+                case ("yes-r-initials") ->
+                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.R_INITIAL_TAG).continueTest();
+                case ("no-r-initials") ->
+                        fabric.getRInitialsSectionManager(chatId).start();
+                case ("yes-special-final") ->
+                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.SPECIAL_FINALS_TAG).continueTest();
+                case ("no-special-final") ->
+                        fabric.getSpecialFinalSectionManager(chatId).start();
+                case ("yes-u-final") ->
+                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.U_FINAL_TAG).continueTest();
+                case ("no-u-final") ->
+                        fabric.getUFinalSectionManager(chatId).start();
                 default -> receiver.setCallbackAnswer(update.getCallbackQuery().getMessage().getChatId(), update.getCallbackQuery().getMessage().getMessageId(), callBack);
             }
 
@@ -126,7 +198,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         row1.add(new InlineKeyboardButton().builder().text("[chi] и [ci]").callbackData("chi-ci").build());
         row2.add(new InlineKeyboardButton().builder().text("Заднеязычные финали").callbackData("back-lang-finals").build());
         row3.add(new InlineKeyboardButton().builder().text("Инициали [j][q][x]").callbackData("jqx-initials").build());
-        row4.add(new InlineKeyboardButton().builder().text("Инициаль [r]").callbackData("r-inital").build());
+        row4.add(new InlineKeyboardButton().builder().text("Инициаль [r]").callbackData("r-initials").build());
         row5.add(new InlineKeyboardButton().builder().text("Особая финаль [er]").callbackData("special-final").build());
         row6.add(new InlineKeyboardButton().builder().text("Придыхательные инициали").callbackData("aspirated-initials").build());
         row7.add(new InlineKeyboardButton().builder().text("Финаль [ian] и [iang]").callbackData("ian-iang").build());
@@ -157,19 +229,25 @@ public class TelegramBot extends TelegramLongPollingBot {
             throw new RuntimeException(e);
         }
     }
-    public void sendContinueMessage(long chatId){
+    public void sendContinueMessage(long chatId, String tag){
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText("У вас есть незавершенный тест в этом разделе, желаете продолжить?");
 
         List<InlineKeyboardButton> row = new ArrayList<>();
-        row.add(new InlineKeyboardButton().builder().text("Да").callbackData("yes").build());
-        row.add(new InlineKeyboardButton().builder().text("Нет").callbackData("no").build());
+        row.add(new InlineKeyboardButton().builder().text("Да").callbackData("yes-" + tag).build());
+        row.add(new InlineKeyboardButton().builder().text("Нет").callbackData("no-" + tag).build());
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        keyboard.add(row);
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         markup.setKeyboard(keyboard);
 
         message.setReplyMarkup(markup);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
     }
     public void editMessage(long chatId, int messageId, String question, String answer){
         EditMessageText message = new EditMessageText();

@@ -44,8 +44,8 @@ public class ActiveTests {
         }
         return incompleteTest;
     }
-    public static void clear(Long chatId, AbsSectionManager sectionManager){
-        saveTests.get(chatId).remove(sectionManager);
+    public static void clear(Long chatId, String tag){
+        saveTests.get(chatId).removeIf(section -> section.getTag().equals(tag));
         activeTests.remove(chatId);
     }
 }
