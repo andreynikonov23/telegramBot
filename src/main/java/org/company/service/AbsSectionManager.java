@@ -186,34 +186,35 @@ public abstract class AbsSectionManager implements SectionManager {
 
 
         try {
-            logger.info(String.format("ChatId=%s test %s- sendChoiceAnswer with parameters (%s, %s)", question, num));
+            logger.info(String.format("ChatId=%d test %s- sendChoiceAnswer with parameters (%s, %s)",chatId, tag, question, num));
             bot.execute(message);
             if (!(question.getMediaFiles().isEmpty())){
                 sendVoice(question);
             }
         } catch (TelegramApiException e) {
-            logger.error(String.format("ChatId=%s test %s- sendChoiceAnswer with parameters (%s, %s)", question, num));
+            logger.error(String.format("ChatId=%d test %s- sendChoiceAnswer with parameters (%s, %s)", chatId, tag, question, num));
             logger.error(e.getStackTrace());
             throw new RuntimeException(e);
         }
     }
     private void sendInputQuestion(Question question, int num){
-        logger.info(String.format("ChatId=%s test %s- sendInputAnswer with parameters (%s, %s)", question, num));
+        logger.info(String.format("ChatId=%d test %s- sendInputAnswer with parameters (%s, %s)", chatId, tag, question, num));
         bot.sendMessage(chatId, question.getQuestionTxt());
         if (!(question.getMediaFiles().isEmpty())){
             sendVoice(question);
         }
     }
     private void sendVoice(Question question){
-        logger.info(String.format("ChatId=%s test %s- sendVoice with parameters (%s)", question));
+        logger.info(String.format("ChatId=%d test %s- sendVoice with parameters (%s)", chatId, tag, question));
         for(File file : question.getMediaFiles()){
             SendVoice voice = new SendVoice();
             voice.setChatId(chatId);
             voice.setVoice(new InputFile(file));
             try {
                 bot.execute(voice);
+                break;
             } catch (TelegramApiException e) {
-                logger.error(String.format("ChatId=%s test %s- sendVoice with parameters (%s)", question));
+                logger.error(String.format("ChatId=%d test %s- sendVoice with parameters (%s)", chatId, tag, question));
                 logger.error(e.getStackTrace());
                 throw new RuntimeException(e);
             }
