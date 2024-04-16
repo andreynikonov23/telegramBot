@@ -16,6 +16,8 @@ import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 @Configuration
@@ -25,6 +27,15 @@ public class SpringConfig {
    private static final Logger logger = Logger.getLogger(SpringConfig.class);
    @Autowired
    private ApplicationContext applicationContext;
+
+   @PreDestroy
+   public void preDestroy(){
+
+   }
+   @PostConstruct
+   public void postConstruct(){
+
+   }
 
     @Bean
     public QuestionsLoader questionsLoader() throws IOException {
