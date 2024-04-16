@@ -81,7 +81,7 @@ public class QuestionsLoader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        logger.debug("question for chi-ci have been loaded");
+        logger.debug("question for" + tag + "have been loaded");
         return questions;
     }
     private void parseToQuestionList(List<String[]> strings, List<Question> questions, String dir) throws IOException {

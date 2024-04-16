@@ -14,6 +14,6 @@ public class Main {
         logger.debug("Start application");
         AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(SpringConfig.class);
         TelegramBotsApi telegramBotsApi = applicationContext.getBean(TelegramBotsApi.class);
-        logger.debug("Telegram Bot is registered");
+        logger.debug("Telegram Bot started...");
     }
 }

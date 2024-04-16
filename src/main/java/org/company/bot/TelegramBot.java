@@ -56,9 +56,14 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (update.hasCallbackQuery()){
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             String callBack = update.getCallbackQuery().getData();
+            logger.debug(String.format("%s : ChatId=%s use callback %s", update.getCallbackQuery().getFrom().getUserName(),chatId, callBack));
             switch (callBack) {
                 case (AnswerReceiver.CHI_CI_TAG) ->{
-
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.CHI_CI_TAG) == null){
+                        fabric.getChiCiSection(chatId).start();
+                    } else {
+                        sendContinueMessage(chatId, AnswerReceiver.CHI_CI_TAG);
+                    }
                 }
                 case (AnswerReceiver.BACK_LANG_FINALS_TAG) -> {
                     if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.BACK_LANG_FINALS_TAG) == null){
@@ -109,7 +114,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         sendContinueMessage(chatId, AnswerReceiver.SPECIAL_FINALS_TAG);
                     }
                 }
-                case ("u-final") -> {
+                case (AnswerReceiver.U_FINAL_TAG) -> {
                     if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.U_FINAL_TAG) == null){
                         fabric.getUFinalSectionManager(chatId).start();
                     } else {
@@ -230,6 +235,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
     public void sendContinueMessage(long chatId, String tag){
+        logger.debug(String.format("sendContinueMessage with parameters (%d, %s)", chatId, tag));
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText("У вас есть незавершенный тест в этом разделе, желаете продолжить?");
@@ -246,6 +252,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
+            logger.error(String.format("sendContinueMessage with parameters (%d, %s)", chatId, tag));
+            logger.error(e.getStackTrace());
             throw new RuntimeException(e);
         }
     }
@@ -260,9 +268,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         markup.setKeyboard(emptyKeyboard);
         message.setReplyMarkup(markup);
+        String format = String.format("editMessage with parameters (%d, %d, %s, %s)", chatId, messageId, question, answer);
         try {
+            logger.debug(format);
             execute(message);
         } catch (TelegramApiException e) {
+            logger.error(format);
+            logger.error(e.getStackTrace());
             throw new RuntimeException(e);
         }
     }

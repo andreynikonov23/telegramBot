@@ -1,12 +1,13 @@
 package org.company.service;
 
 import lombok.Data;
+import org.apache.log4j.Logger;
 import org.company.bot.TelegramBot;
 import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.company.utils.ActiveTests;
-import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -18,6 +19,7 @@ import java.util.*;
 @Data
 public abstract class AbsSectionManager implements SectionManager {
     private String tag;
+    private String user;
     private long chatId;
     private int messageId;
     private TelegramBot bot;
@@ -25,6 +27,7 @@ public abstract class AbsSectionManager implements SectionManager {
     private int rightAnswersCount;
     private final HashMap<Integer, String> USER_ANSWERS = new HashMap<>();
     private final ArrayList<Integer> ORDER_QUESTIONS = new ArrayList<>();
+    private static final Logger logger = Logger.getLogger(AbsSectionManager.class);
 
     public AbsSectionManager(long chatId, List<Question> questions, TelegramBot bot){
         this.chatId = chatId;
@@ -37,18 +40,21 @@ public abstract class AbsSectionManager implements SectionManager {
 
     @Override
     public void start() {
+        logger.info(String.format("ChatId=%d test %s start", chatId, tag));
         ActiveTests.addActiveTest(chatId, this);
         ActiveTests.saveTest(chatId, this);
         initOrderQuestions();
         sendQuestion();
     }
     public void continueTest() {
+        logger.info(String.format("ChatId=%d test %s continue", chatId, tag));
         ActiveTests.addActiveTest(chatId, this);
         sendQuestion();
     }
 
     @Override
     public void initOrderQuestions(){
+        logger.info(String.format("ChatId=%d test %s - initOrderQuestion()", chatId, tag));
         for (int i = 0; i < questions.size(); i++) {
             ORDER_QUESTIONS.add(i);
         }
@@ -73,6 +79,7 @@ public abstract class AbsSectionManager implements SectionManager {
 
     @Override
     public void setCallbackAnswer(Integer messageId, Integer numberOfQuestion, String answer) {
+        logger.info(String.format("ChatId=%d test %s - setCallbackAnswer with parameters (%d, %d, %s)",chatId, tag, messageId, numberOfQuestion, answer));
         Question question = questions.get(numberOfQuestion);
         String answerTxt;
         switch (answer) {
@@ -93,6 +100,7 @@ public abstract class AbsSectionManager implements SectionManager {
 
     @Override
     public void setTextAnswer(String text) {
+        logger.info(String.format("ChatId=%d test %s - setTextAnswer with parameter (%s)",chatId, tag, text));
         check(text);
         USER_ANSWERS.put(ORDER_QUESTIONS.get(0), text.trim().toLowerCase());
         ORDER_QUESTIONS.remove(0);
@@ -101,6 +109,7 @@ public abstract class AbsSectionManager implements SectionManager {
 
     @Override
     public void result() {
+        logger.info(String.format("ChatId=%d test %s - send result test", chatId, tag));
         StringBuilder resultMessageText = new StringBuilder();
         for (int i = 0; i < questions.size(); i++) {
             Question question = questions.get(i);
@@ -134,12 +143,15 @@ public abstract class AbsSectionManager implements SectionManager {
         bot.sendMessage(chatId, resultMessageText.toString());
     }
     public void check(String answer){
+        logger.debug(String.format("ChatId=%d test %s check with parameter (%s)",chatId, tag, answer));
         int numberOfQuestion = ORDER_QUESTIONS.get(0);
         String rightAnswer = questions.get(numberOfQuestion).getRightAnswer();
         if (rightAnswer.equals(answer.toLowerCase().replaceAll(" ", ""))){
+            logger.info("send \"is right\"");
             rightAnswersCount++;
             bot.sendMessage(chatId, "Правильно");
         } else {
+            logger.info("send \"isn't right\"");
             bot.sendMessage(chatId, "Неправильно!\nПравильный ответ: " + rightAnswer);
         }
     }
@@ -174,29 +186,35 @@ public abstract class AbsSectionManager implements SectionManager {
 
 
         try {
+            logger.info(String.format("ChatId=%s test %s- sendChoiceAnswer with parameters (%s, %s)", question, num));
             bot.execute(message);
             if (!(question.getMediaFiles().isEmpty())){
-                sendAudio(question);
+                sendVoice(question);
             }
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            logger.error(String.format("ChatId=%s test %s- sendChoiceAnswer with parameters (%s, %s)", question, num));
+            logger.error(e.getStackTrace());
             throw new RuntimeException(e);
         }
     }
     private void sendInputQuestion(Question question, int num){
+        logger.info(String.format("ChatId=%s test %s- sendInputAnswer with parameters (%s, %s)", question, num));
         bot.sendMessage(chatId, question.getQuestionTxt());
         if (!(question.getMediaFiles().isEmpty())){
-            sendAudio(question);
+            sendVoice(question);
         }
     }
-    private void sendAudio(Question question){
+    private void sendVoice(Question question){
+        logger.info(String.format("ChatId=%s test %s- sendVoice with parameters (%s)", question));
         for(File file : question.getMediaFiles()){
-            SendAudio audio = new SendAudio();
-            audio.setChatId(chatId);
-            audio.setAudio(new InputFile(file));
+            SendVoice voice = new SendVoice();
+            voice.setChatId(chatId);
+            voice.setVoice(new InputFile(file));
             try {
-                bot.execute(audio);
+                bot.execute(voice);
             } catch (TelegramApiException e) {
+                logger.error(String.format("ChatId=%s test %s- sendVoice with parameters (%s)", question));
+                logger.error(e.getStackTrace());
                 throw new RuntimeException(e);
             }
         }

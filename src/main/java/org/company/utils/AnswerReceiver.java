@@ -1,14 +1,14 @@
 package org.company.utils;
 
+import org.apache.log4j.Logger;
 import org.company.bot.TelegramBot;
 import org.company.model.AnswerType;
 import org.company.service.*;
-import org.telegram.telegrambots.meta.api.objects.MaybeInaccessibleMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 
 
 public class AnswerReceiver {
     private TelegramBot bot;
+    private static final Logger logger = Logger.getLogger(AnswerReceiver.class);
     public static final String CHI_CI_TAG = "chi-ci";
     public static final String ASPIRATED_INITIALS_TAG = "aspirated-initials";
     public static final String BACK_LANG_FINALS_TAG = "back-lang-finals";
@@ -118,6 +118,7 @@ public class AnswerReceiver {
         if (sectionManager.getActiveQuestion().getType() == AnswerType.INPUT){
             sectionManager.setTextAnswer(text);
         } else {
+            logger.debug(String.format("ChatId=%d unknown text (%s) message", chatId, text));
             bot.sendMessage(chatId, "Команда не распознана");
         }
     }

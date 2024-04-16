@@ -1,5 +1,6 @@
 package org.company.utils;
 
+import org.apache.log4j.Logger;
 import org.company.service.AbsSectionManager;
 
 import java.util.HashMap;
@@ -7,24 +8,26 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ActiveTests {
+    private static final Logger logger = Logger.getLogger(ActiveTests.class);
     private static final HashMap<Long, Set<AbsSectionManager>> saveTests = new HashMap<>();
     private static final HashMap<Long, AbsSectionManager> activeTests = new HashMap<>();
 
     private ActiveTests(){}
 
     public static void saveTest(Long chatId, AbsSectionManager sectionManager){
-        System.out.println(saveTests);
+        logger.info(String.format("addActiveTest with Parameters (%d, %s)", chatId, sectionManager));
         if (saveTests.containsKey(chatId)){
             saveTests.get(chatId).add(sectionManager);
+            logger.info(String.format("saveTests add new key-value %d-%s", chatId, sectionManager));
         } else {
             Set<AbsSectionManager> set = new HashSet<>();
             set.add(sectionManager);
             saveTests.put(chatId, set);
+            logger.info(String.format("saveTests key=%s put=%s", chatId, sectionManager));
         }
     }
     public static void addActiveTest(Long chatId, AbsSectionManager sectionManager){
-        System.out.println(activeTests);
-        System.out.println(saveTests);
+        logger.debug(String.format("addActiveTest with Parameters (%d, %s)", chatId, sectionManager));
         activeTests.put(chatId, sectionManager);
     }
     public static Set<AbsSectionManager> getSectionManagersSet(long chatId){
@@ -42,10 +45,12 @@ public class ActiveTests {
                 }
             }
         }
+        logger.info("getIncompleteTest return " + incompleteTest);
         return incompleteTest;
     }
     public static void clear(Long chatId, String tag){
         saveTests.get(chatId).removeIf(section -> section.getTag().equals(tag));
         activeTests.remove(chatId);
+        logger.info(String.format("ChatId=%d test %s hashMaps clear", chatId, tag));
     }
 }
