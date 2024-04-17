@@ -3,8 +3,10 @@ package org.company.config;
 import org.apache.log4j.Logger;
 import org.company.bot.TelegramBot;
 import org.company.service.*;
+import org.company.utils.ActiveTests;
 import org.company.utils.AnswerReceiver;
 import org.company.utils.QuestionsLoader;
+import org.company.utils.UsersData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +20,9 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 
 @Configuration
 @ComponentScan("org.company")
@@ -28,15 +32,17 @@ public class SpringConfig {
    @Autowired
    private ApplicationContext applicationContext;
 
-   @PreDestroy
-   public void preDestroy(){
 
-   }
    @PostConstruct
-   public void postConstruct(){
-
+   public void postConstruct() throws IOException {
+       //Десериализация ActiveTests
+       logger.debug("postConstruct method");
    }
 
+    @Bean
+    public UsersData usersData(){
+       return new UsersData();
+    }
     @Bean
     public QuestionsLoader questionsLoader() throws IOException {
         logger.debug("Creating questionsLoaderBean");

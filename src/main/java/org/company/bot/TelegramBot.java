@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.company.service.SectionFabric;
 import org.company.utils.ActiveTests;
 import org.company.utils.AnswerReceiver;
+import org.company.utils.UsersData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -27,6 +28,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Value("${bot.token}")
     private String token;
     @Autowired
+    private UsersData usersData;
+    @Autowired
     private SectionFabric fabric;
     @Autowired
     private AnswerReceiver receiver;
@@ -40,6 +43,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             if (message.getText().equals("/start") || message.getText().equals("/help")){
                 if (message.getText().equals("/start")){
                     logger.debug(String.format("%s : ChatId=%s use /start", message.getChat().getUserName(), message.getChatId()));
+                    usersData.isNewUser(message.getChat().getUserName());
                     sendMainMenuMessage(update);
                 }
                 if (message.getText().equals("/help")){
@@ -159,7 +163,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                         fabric.getUFinalSectionManager(chatId).start();
                 default -> receiver.setCallbackAnswer(update.getCallbackQuery().getMessage().getChatId(), update.getCallbackQuery().getMessage().getMessageId(), callBack);
             }
-
         }
 
     }
