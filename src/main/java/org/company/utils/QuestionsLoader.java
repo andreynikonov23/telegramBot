@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//Удалить hi-ci list чтобы сразу брать из файла а не из озу
+
 @NoArgsConstructor
 public class QuestionsLoader {
     private static final Logger logger = Logger.getLogger(QuestionsLoader.class);

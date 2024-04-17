@@ -1,6 +1,8 @@
 package org.company.model;
 
-public enum AnswerType {
+import java.io.Serializable;
+
+public enum AnswerType implements Serializable {
     CHOICE,
     INPUT
 }

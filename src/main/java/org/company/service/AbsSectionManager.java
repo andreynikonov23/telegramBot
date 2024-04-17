@@ -14,15 +14,16 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.*;
 
 @Data
-public abstract class AbsSectionManager implements SectionManager {
+public abstract class AbsSectionManager implements SectionManager, Serializable {
     private String tag;
     private String user;
     private long chatId;
     private int messageId;
-    private TelegramBot bot;
+    private transient TelegramBot bot;
     private List<Question> questions;
     private int rightAnswersCount;
     private final HashMap<Integer, String> USER_ANSWERS = new HashMap<>();
