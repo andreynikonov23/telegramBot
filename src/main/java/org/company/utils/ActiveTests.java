@@ -4,6 +4,8 @@ import org.apache.log4j.Logger;
 import org.company.service.AbsSectionManager;
 
 import java.io.*;
+import java.net.URL;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,8 +13,13 @@ import java.util.Set;
 public class ActiveTests implements Serializable {
     private static final Logger logger = Logger.getLogger(ActiveTests.class);
 
-    private static HashMap<Long, Set<AbsSectionManager>> saveTests;
-    private static HashMap<Long, AbsSectionManager> activeTests;
+    private static final File DATA_FILE;
+    private static HashMap<Long, Set<AbsSectionManager>> saveTests = new HashMap<>();
+    private static HashMap<Long, AbsSectionManager> activeTests = new HashMap<>();
+    static {
+//        URL url = ClassLoader.getSystemResource("active-tests.dat");
+        DATA_FILE = new File("C:\\telegramBotConf\\test.txt");
+    }
 
     private ActiveTests(){}
 
@@ -20,17 +27,20 @@ public class ActiveTests implements Serializable {
         logger.info(String.format("addActiveTest with Parameters (%d, %s)", chatId, sectionManager));
         if (saveTests.containsKey(chatId)){
             saveTests.get(chatId).add(sectionManager);
+            serialize();
             logger.info(String.format("saveTests add new key-value %d-%s", chatId, sectionManager));
         } else {
             Set<AbsSectionManager> set = new HashSet<>();
             set.add(sectionManager);
             saveTests.put(chatId, set);
+            serialize();
             logger.info(String.format("saveTests key=%s put=%s", chatId, sectionManager));
         }
     }
     public static void addActiveTest(Long chatId, AbsSectionManager sectionManager){
         logger.debug(String.format("addActiveTest with Parameters (%d, %s)", chatId, sectionManager));
         activeTests.put(chatId, sectionManager);
+        serialize();
     }
     public static Set<AbsSectionManager> getSectionManagersSet(long chatId){
         return saveTests.get(chatId);
@@ -56,24 +66,23 @@ public class ActiveTests implements Serializable {
         logger.info(String.format("ChatId=%d test %s hashMaps clear", chatId, tag));
     }
 
-    public static void serialize(String file){
-        try(ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file))){
-            stream.defaultWriteObject();
+    public static void serialize(){
+        try(ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(DATA_FILE))){
             stream.writeObject(saveTests);
-            stream.writeObject(activeTests);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
-    public static void deserialize(File file){
-        if (file.length() > 0){
-            try(ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file))){
-                stream.defaultReadObject();
+    public static void deserialize() throws IOException {
+        if (Files.size(DATA_FILE.toPath()) > 0){
+            try(ObjectInputStream stream = new ObjectInputStream(new FileInputStream(DATA_FILE))){
                 saveTests = (HashMap<Long, Set<AbsSectionManager>>) stream.readObject();
-                activeTests = (HashMap<Long, AbsSectionManager>) stream.readObject();
+//                activeTests = (HashMap<Long, AbsSectionManager>) stream.readObject();
             } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         } else {

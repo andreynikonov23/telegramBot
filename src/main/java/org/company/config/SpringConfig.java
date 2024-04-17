@@ -37,6 +37,7 @@ public class SpringConfig {
    public void postConstruct() throws IOException {
        //Десериализация ActiveTests
        logger.debug("postConstruct method");
+       ActiveTests.deserialize();
    }
 
     @Bean
