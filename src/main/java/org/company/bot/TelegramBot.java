@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +49,11 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
                 if (message.getText().equals("/help")){
                     logger.debug(String.format("%s : ChatId=%s use /help", message.getChat().getUserName(), message.getChatId()));
-                    String text = "/start - главное меню\n/help - помощь";
+                    String text = "Бот предлагает увлекательные тесты для проверки ваших знаний и отслеживания прогресса в изучении китайского языка.\n" +
+                            "Вы можете выбирать тесты по различным темам прямо из главного меню. " +
+                            "Задания могут быть как с вариантами ответов, так и с возможностью ввода текста. " +
+                            "По завершении теста вы получите свой результат. " +
+                            "Бот также запоминает ваши ответы, если вы не завершили тест или решаете вернуться к нему позже, предлагая продолжить там, где остановились.";
                     sendMessage(message.getChatId(), text);
                     sendMainMenuMessage(update);
 

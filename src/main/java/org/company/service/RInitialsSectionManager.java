@@ -1,13 +1,15 @@
 package org.company.service;
 
+import lombok.NoArgsConstructor;
 import org.company.bot.TelegramBot;
 import org.company.model.Question;
 
 import java.util.List;
 
+@NoArgsConstructor
 public class RInitialsSectionManager extends AbsSectionManager{
-    public RInitialsSectionManager(long chatId, List<Question> questions, TelegramBot bot) {
-        super(chatId, questions, bot);
+    public RInitialsSectionManager(long chatId, List<Question> questions) {
+        super(chatId, questions);
         setTag("r-initials");
     }
 }

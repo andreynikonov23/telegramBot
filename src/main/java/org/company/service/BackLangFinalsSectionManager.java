@@ -1,13 +1,14 @@
 package org.company.service;
 
-import org.company.bot.TelegramBot;
+import lombok.NoArgsConstructor;
 import org.company.model.Question;
 
 import java.util.List;
 
+@NoArgsConstructor
 public class BackLangFinalsSectionManager extends AbsSectionManager{
-    public BackLangFinalsSectionManager(long chatId, List<Question> questions, TelegramBot bot) {
-        super(chatId, questions, bot);
+    public BackLangFinalsSectionManager(long chatId, List<Question> questions) {
+        super(chatId, questions);
         setTag("back-lang-finals");
     }
 }

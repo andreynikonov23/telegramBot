@@ -1,26 +1,23 @@
 package org.company.utils;
 
 import org.apache.log4j.Logger;
+import org.company.bot.TelegramBot;
 import org.company.service.AbsSectionManager;
-import org.springframework.util.SerializationUtils;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class ActiveTests implements Serializable {
     private static final Logger logger = Logger.getLogger(ActiveTests.class);
 
-    private static final File DATA_FILE;
+    private static final File DATA_FILE = new File("C:\\telegramBotConf\\file.dat");
     private static HashMap<Long, Set<AbsSectionManager>> saveTests;
     private static HashMap<Long, AbsSectionManager> activeTests;
-    static {
-//        URL url = ClassLoader.getSystemResource("active-tests.dat");
-        DATA_FILE = new File("C:\\telegramBotConf\\test.txt");
-    }
 
     private ActiveTests(){}
 
@@ -28,19 +25,20 @@ public class ActiveTests implements Serializable {
         logger.info(String.format("addActiveTest with Parameters (%d, %s)", chatId, sectionManager));
         if (saveTests.containsKey(chatId)){
             saveTests.get(chatId).add(sectionManager);
-//            serialize();
+            serialize();
             logger.info(String.format("saveTests add new key-value %d-%s", chatId, sectionManager));
         } else {
             Set<AbsSectionManager> set = new HashSet<>();
             set.add(sectionManager);
             saveTests.put(chatId, set);
-//            serialize();
+            serialize();
             logger.info(String.format("saveTests key=%s put=%s", chatId, sectionManager));
         }
     }
     public static void addActiveTest(Long chatId, AbsSectionManager sectionManager){
         logger.debug(String.format("addActiveTest with Parameters (%d, %s)", chatId, sectionManager));
         activeTests.put(chatId, sectionManager);
+        serialize();
     }
     public static Set<AbsSectionManager> getSectionManagersSet(long chatId){
         return saveTests.get(chatId);
@@ -63,28 +61,46 @@ public class ActiveTests implements Serializable {
     public static void clear(Long chatId, String tag){
         saveTests.get(chatId).removeIf(section -> section.getTag().equals(tag));
         activeTests.remove(chatId);
+        serialize();
         logger.info(String.format("ChatId=%d test %s hashMaps clear", chatId, tag));
     }
 
     public static void serialize(){
+        logger.debug("saving data");
         try(ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(DATA_FILE))){
-            byte[] bytes = SerializationUtils.serialize(saveTests);
-            stream.writeObject(bytes);
+            stream.writeObject(saveTests);
+            stream.writeObject(activeTests);
         } catch (FileNotFoundException e) {
+            logger.error("saving data error");
             throw new RuntimeException(e);
         } catch (IOException e) {
+            logger.error("saving data error");
             e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
-    public static void deserialize() throws IOException {
-        if (Files.size(DATA_FILE.toPath()) > 0){
+    public static void deserialize(AnnotationConfigApplicationContext context) throws IOException {
+        if (!(DATA_FILE.exists())){
+            logger.debug("creation file.dat");
+            Files.createFile(DATA_FILE.toPath());
+            saveTests = new HashMap<>();
+            activeTests = new HashMap<>();
+        } else if (Files.size(DATA_FILE.toPath()) > 0){
+            logger.debug("deserialization data...");
             try(ObjectInputStream stream = new ObjectInputStream(new FileInputStream(DATA_FILE))){
-                byte[] bytes = stream.readAllBytes();
-                saveTests = (HashMap<Long, Set<AbsSectionManager>>) SerializationUtils.deserialize(bytes);
-//                activeTests = (HashMap<Long, AbsSectionManager>) stream.readObject();
+                saveTests = (HashMap<Long, Set<AbsSectionManager>>) stream.readObject();
+                activeTests = (HashMap<Long, AbsSectionManager>) stream.readObject();
+                for (Map.Entry<Long, Set<AbsSectionManager>> entry : saveTests.entrySet()){
+                    for (AbsSectionManager manager : entry.getValue()){
+                        manager.setBot(context.getBean(TelegramBot.class));
+                    }
+                }
             } catch (IOException e) {
+                logger.error("deserialization data error!");
                 e.printStackTrace();
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                logger.error("deserialization data error!");
                 throw new RuntimeException(e);
             }
         } else {

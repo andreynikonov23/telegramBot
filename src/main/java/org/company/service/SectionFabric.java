@@ -19,38 +19,55 @@ public class SectionFabric {
 
     public ChiCiSectionManager getChiCiSection(long chatId) {
         logger.info("SectionFabric create ChiCiSectionManager: ChatId=" + chatId);
-        return new ChiCiSectionManager(chatId, questionsLoader.getChiCiQuestionsList(), bot);
+        ChiCiSectionManager chiCiSectionManager = new ChiCiSectionManager(chatId, questionsLoader.getChiCiQuestionsList());
+        chiCiSectionManager.setBot(bot);
+        return chiCiSectionManager;
     }
     public AspiratedInitialsSectionManager getAspiratedInitialsSectionManager(long chatId){
         logger.info("SectionFabric create AspiratedInitialsSectionManager: ChatId=" + chatId);
-        return new AspiratedInitialsSectionManager(chatId, questionsLoader.getAspiratedInitialsQuestionsList(), bot);
+        AspiratedInitialsSectionManager aspiratedInitialsSectionManager = new AspiratedInitialsSectionManager(chatId, questionsLoader.getAspiratedInitialsQuestionsList());
+        aspiratedInitialsSectionManager.setBot(bot);
+        return aspiratedInitialsSectionManager;
     }
     public BackLangFinalsSectionManager getBackLangFinalsSectionManager(long chatId){
         logger.info("SectionFabric create BackLangFinalsSectionManager: ChatId=" + chatId);
-        return new BackLangFinalsSectionManager(chatId, questionsLoader.getBackLangFinalsQuestionsList(), bot);
+        BackLangFinalsSectionManager backLangFinalsSectionManager = new BackLangFinalsSectionManager(chatId, questionsLoader.getBackLangFinalsQuestionsList());
+        backLangFinalsSectionManager.setBot(bot);
+        return backLangFinalsSectionManager;
     }
     public EFinalSectionManager getEFinalSectionManager(long chatId){
         logger.info("SectionFabric create EFinalSectionManager: ChatId=" + chatId);
-        return new EFinalSectionManager(chatId, questionsLoader.getEFinalQuestionsList(), bot);
+        EFinalSectionManager eFinalSectionManager = new EFinalSectionManager(chatId, questionsLoader.getEFinalQuestionsList());
+        eFinalSectionManager.setBot(bot);
+        return eFinalSectionManager;
     }
     public IanIangSectionManager getIanIangSectionManager(long chatId){
         logger.info("SectionFabric create IanIangSectionManager: ChatId=" + chatId);
-        return new IanIangSectionManager(chatId, questionsLoader.getIanIangQuestionsList(), bot);
+        IanIangSectionManager ianIangSectionManager = new IanIangSectionManager(chatId, questionsLoader.getIanIangQuestionsList());
+        ianIangSectionManager.setBot(bot);
+        return ianIangSectionManager;
     }
     public JqxInitialsSectionManager getJqxInitialsSectionManager(long chatId){
         logger.info("SectionFabric create JqxInitialsSectionManager: ChatId=" + chatId);
-        return new JqxInitialsSectionManager(chatId, questionsLoader.getJqxInitialsQuestionsList(), bot);
+        JqxInitialsSectionManager jqxInitialsSectionManager = new JqxInitialsSectionManager(chatId, questionsLoader.getJqxInitialsQuestionsList());
+        jqxInitialsSectionManager.setBot(bot);
+        return jqxInitialsSectionManager;
     }
     public RInitialsSectionManager getRInitialsSectionManager(long chatId){
         logger.info("SectionFabric create RInitialsSectionManager: ChatId=" + chatId);
-        return new RInitialsSectionManager(chatId, questionsLoader.getRInitialsQuestionsList(), bot);
+        RInitialsSectionManager rInitialsSectionManager = new RInitialsSectionManager(chatId, questionsLoader.getRInitialsQuestionsList());
+        rInitialsSectionManager.setBot(bot);
+        return rInitialsSectionManager;
     }
     public SpecialFinalSectionManager getSpecialFinalSectionManager(long chatId){
         logger.info("SectionFabric create SpecialFinalSectionManager: ChatId=" + chatId);
-        return new SpecialFinalSectionManager(chatId, questionsLoader.getSpecialFinalQuestionsList(), bot);
+        SpecialFinalSectionManager specialFinalSectionManager = new SpecialFinalSectionManager(chatId, questionsLoader.getSpecialFinalQuestionsList());
+        specialFinalSectionManager.setBot(bot);
+        return specialFinalSectionManager;
     }
     public UFinalSectionManager getUFinalSectionManager(long chatId){
         logger.info("SectionFabric create UFinalSectionManager: ChatId=" + chatId);
-        return new UFinalSectionManager(chatId, questionsLoader.getUFinalQuestionsList(), bot);
+        UFinalSectionManager uFinalSectionManager = new UFinalSectionManager(chatId, questionsLoader.getUFinalQuestionsList());
+        return uFinalSectionManager;
     }
 }
