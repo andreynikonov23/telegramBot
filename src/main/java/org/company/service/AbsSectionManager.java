@@ -218,12 +218,12 @@ public abstract class AbsSectionManager implements SectionManager, Serializable 
             sendVoice(question);
         }
     }
-    private void sendVoice(Question question){
+    private void sendVoice(Question question) {
         logger.info(String.format("ChatId=%d test %s- sendVoice with parameters (%s)", chatId, tag, question));
-        for(File file : question.getMediaFiles()){
+        for(String file : question.getMediaFiles()){
             SendVoice voice = new SendVoice();
             voice.setChatId(chatId);
-            voice.setVoice(new InputFile(file));
+            voice.setVoice(new InputFile(new BufferedInputStream(getClass().getResourceAsStream("/media/" + tag + "/" + file)), file));
             try {
                 bot.execute(voice);
                 break;

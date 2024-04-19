@@ -100,7 +100,17 @@ public class QuestionsLoader {
             question.setAnswerE(arr[5]);
             question.setRightAnswer(arr[6]);
 
-            loadFiles(arr, question, dir);
+            List<String> mediaFiles = new ArrayList<>();
+            if (arr[7] != null){
+                mediaFiles.add(arr[7]);
+            }
+            if (arr[8] != null){
+                mediaFiles.add(arr[8]);
+            }
+            if (arr[9] != null){
+                mediaFiles.add(arr[9]);
+            }
+            question.setMediaFiles(mediaFiles);
 
             if (arr[10].equals("choice")){
                 question.setType(AnswerType.CHOICE);
@@ -111,21 +121,20 @@ public class QuestionsLoader {
             id++;
         }
     }
-    private void loadFiles(String[] arr, Question question, String dir) throws IOException {
-        List<File> mediaFiles = new ArrayList<>();
-        if (arr[7] != null){
-            File file = new File(getClass().getResource(dir + arr[7]).getFile());
-            mediaFiles.add(file);
-        }
-        if (arr[8] != null){
-            File file = new File(media.getFile().getAbsolutePath() + dir + arr[8]);
-            mediaFiles.add(file);
-        }
-        if (arr[9] != null){
-            File file = new File(media.getFile().getAbsolutePath() + dir + arr[9]);
-            mediaFiles.add(file);
-        }
-        question.setMediaFiles(mediaFiles);
-    }
+//    private void loadFiles(String[] arr, Question question, String dir) throws IOException {
+//        List<String> mediaFiles = new ArrayList<>();
+//        if (arr[7] != null){
+//            mediaFiles.add(file);
+//        }
+//        if (arr[8] != null){
+//            File file = new File(media.getFile().getAbsolutePath() + dir + arr[8]);
+//            mediaFiles.add(file);
+//        }
+//        if (arr[9] != null){
+//            File file = new File(media.getFile().getAbsolutePath() + dir + arr[9]);
+//            mediaFiles.add(file);
+//        }
+//        question.setMediaFiles(mediaFiles);
+//    }
 
 }
