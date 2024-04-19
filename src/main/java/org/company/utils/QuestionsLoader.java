@@ -9,9 +9,8 @@ import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.springframework.core.io.Resource;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,14 +65,18 @@ public class QuestionsLoader {
     }
 
     private List<Question> getQuestionList(String tag) {
-        String dir = "/" + tag + "/";
+        String dir = "/media/" + tag + "/";
         logger.debug(dir + "tasks.csv reading");
         List<Question> questions = new ArrayList<>();
-        List<String[]> strings;
-        try(CSVReader reader = new CSVReaderBuilder(new FileReader(media.getFile().getAbsolutePath() + dir + "tasks.csv")).withSkipLines(1).build()) {
-            strings = reader.readAll();
-        } catch (IOException | CsvException e) {
-            logger.error(dir + "tasks.csv reading error\n" + Arrays.toString(e.getStackTrace()));
+        List<String[]> strings = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(dir +"tasks.csv")))){
+            while (reader.ready()){
+                String str = new String(reader.readLine().getBytes(), StandardCharsets.UTF_8);
+                String[] arr = str.split(",");
+                strings.add(arr);
+            }
+            strings.remove(0);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         try {
@@ -111,7 +114,7 @@ public class QuestionsLoader {
     private void loadFiles(String[] arr, Question question, String dir) throws IOException {
         List<File> mediaFiles = new ArrayList<>();
         if (arr[7] != null){
-            File file = new File(media.getFile().getAbsolutePath() + dir + arr[7]);
+            File file = new File(getClass().getResource(dir + arr[7]).getFile());
             mediaFiles.add(file);
         }
         if (arr[8] != null){
