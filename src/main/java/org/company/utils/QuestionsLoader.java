@@ -68,17 +68,17 @@ public class QuestionsLoader {
         String dir = "/media/" + tag + "/";
         logger.debug(dir + "tasks.csv reading");
         List<Question> questions = new ArrayList<>();
-        List<String[]> strings = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(dir +"tasks.csv")))){
-            while (reader.ready()){
-                String str = new String(reader.readLine().getBytes(), StandardCharsets.UTF_8);
-                String[] arr = str.split(",");
-                strings.add(arr);
-            }
-            strings.remove(0);
+        List<String[]> strings;
+        try (CSVReader reader = new CSVReaderBuilder(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(dir + "tasks.csv")))).withSkipLines(1).build()){
+            strings = reader.readAll();
         } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (CsvException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
+        System.out.println(strings);
         try {
             parseToQuestionList(strings, questions, dir);
         } catch (IOException e) {
@@ -90,6 +90,10 @@ public class QuestionsLoader {
     private void parseToQuestionList(List<String[]> strings, List<Question> questions, String dir) throws IOException {
         int id = 1;
         for (String[] arr : strings){
+            for (int i = 0; i < arr.length; i++) {
+                arr[i] = new String(arr[i].getBytes(), StandardCharsets.UTF_8);
+                System.out.println(arr[i]);
+            }
             Question question = new Question();
             question.setId(id);
             question.setQuestionTxt(arr[0]);
@@ -101,13 +105,13 @@ public class QuestionsLoader {
             question.setRightAnswer(arr[6]);
 
             List<String> mediaFiles = new ArrayList<>();
-            if (arr[7] != null){
+            if (!(arr[7].equals(""))){
                 mediaFiles.add(arr[7]);
             }
-            if (arr[8] != null){
+            if (!(arr[8].equals(""))){
                 mediaFiles.add(arr[8]);
             }
-            if (arr[9] != null){
+            if (!(arr[9].equals(""))){
                 mediaFiles.add(arr[9]);
             }
             question.setMediaFiles(mediaFiles);

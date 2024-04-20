@@ -4,12 +4,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.log4j.Logger;
 import org.company.bot.TelegramBot;
-import org.company.config.SpringConfig;
 import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.company.utils.ActiveTests;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
@@ -30,8 +27,8 @@ public abstract class AbsSectionManager implements SectionManager, Serializable 
     private transient TelegramBot bot;
     private List<Question> questions;
     private int rightAnswersCount;
-    private HashMap<Integer, String> userAnswers;
-    private ArrayList<Integer> orderQuestions;
+    private HashMap<Integer, String> USER_ANSWERS = new HashMap<>();
+    private ArrayList<Integer> ORDER_QUESTIONS = new ArrayList<>();
     private static final Logger logger = Logger.getLogger(AbsSectionManager.class);
 
     public AbsSectionManager(long chatId, List<Question> questions){
@@ -45,12 +42,7 @@ public abstract class AbsSectionManager implements SectionManager, Serializable 
     @Override
     public void start() {
         logger.info(String.format("ChatId=%d test %s start", chatId, tag));
-        if (userAnswers == null){
-            userAnswers = new HashMap<>();
-        }
-        if (orderQuestions == null){
-            orderQuestions = new ArrayList<>();
-        }
+
         ActiveTests.addActiveTest(chatId, this);
         ActiveTests.saveTest(chatId, this);
         initOrderQuestions();
@@ -66,17 +58,17 @@ public abstract class AbsSectionManager implements SectionManager, Serializable 
     public void initOrderQuestions(){
         logger.info(String.format("ChatId=%d test %s - initOrderQuestion()", chatId, tag));
         for (int i = 0; i < questions.size(); i++) {
-            orderQuestions.add(i);
+            ORDER_QUESTIONS.add(i);
         }
-        Collections.shuffle(orderQuestions);
+        Collections.shuffle(ORDER_QUESTIONS);
     }
 
     @Override
     public void sendQuestion() {
-        if (orderQuestions.isEmpty()){
+        if (ORDER_QUESTIONS.isEmpty()){
             result();
         } else{
-            int num = orderQuestions.get(0);
+            int num = ORDER_QUESTIONS.get(0);
             Question question = questions.get(num);
             if (question.getType() == AnswerType.CHOICE){
                 sendChoiceQuestion(question, num);
@@ -102,8 +94,8 @@ public abstract class AbsSectionManager implements SectionManager, Serializable 
         }
         bot.editMessage(chatId, messageId, question.getQuestionTxt(), answerTxt);
         check(answer);
-        orderQuestions.remove(0);
-        userAnswers.put(numberOfQuestion, answer);
+        ORDER_QUESTIONS.remove(0);
+        USER_ANSWERS.put(numberOfQuestion, answer);
         ActiveTests.serialize();
 
         sendQuestion();
@@ -113,8 +105,8 @@ public abstract class AbsSectionManager implements SectionManager, Serializable 
     public void setTextAnswer(String text) {
         logger.info(String.format("ChatId=%d test %s - setTextAnswer with parameter (%s)",chatId, tag, text));
         check(text);
-        userAnswers.put(orderQuestions.get(0), text.trim().toLowerCase());
-        orderQuestions.remove(0);
+        USER_ANSWERS.put(ORDER_QUESTIONS.get(0), text.trim().toLowerCase());
+        ORDER_QUESTIONS.remove(0);
         ActiveTests.serialize();
 
         sendQuestion();
@@ -143,22 +135,22 @@ public abstract class AbsSectionManager implements SectionManager, Serializable 
             if (!(question.getAnswerE().equals(""))){
                 resultMessageText.append(question.getAnswerE()).append("\n");
             }
-            resultMessageText.append(String.format("Вы ответили: %s. ", userAnswers.get(i)));
-            if (userAnswers.get(i).toLowerCase().replaceAll(" ", "").equals(question.getRightAnswer())){
+            resultMessageText.append(String.format("Вы ответили: %s. ", USER_ANSWERS.get(i)));
+            if (USER_ANSWERS.get(i).toLowerCase().replaceAll(" ", "").equals(question.getRightAnswer())){
                 resultMessageText.append("Это правильно.\n\n");
             } else {
                 resultMessageText.append(String.format("Это не правильный ответ. Правильный ответ: %s\n\n", question.getRightAnswer()));
             }
         }
         resultMessageText.append(String.format("Правильных ответов: %d из %d", rightAnswersCount, questions.size()));
-        userAnswers.clear();
+        USER_ANSWERS.clear();
         ActiveTests.clear(chatId, tag);
         ActiveTests.serialize();
         bot.sendMessage(chatId, resultMessageText.toString());
     }
     public void check(String answer){
         logger.debug(String.format("ChatId=%d test %s check with parameter (%s)",chatId, tag, answer));
-        int numberOfQuestion = orderQuestions.get(0);
+        int numberOfQuestion = ORDER_QUESTIONS.get(0);
         String rightAnswer = questions.get(numberOfQuestion).getRightAnswer();
         if (rightAnswer.equals(answer.toLowerCase().replaceAll(" ", ""))){
             logger.info("send \"is right\"");
@@ -171,7 +163,7 @@ public abstract class AbsSectionManager implements SectionManager, Serializable 
     }
 
     public Question getActiveQuestion(){
-        return questions.get(orderQuestions.get(0));
+        return questions.get(ORDER_QUESTIONS.get(0));
     }
     private void sendChoiceQuestion(Question question, int num){
         SendMessage message = new SendMessage();
@@ -221,12 +213,15 @@ public abstract class AbsSectionManager implements SectionManager, Serializable 
     private void sendVoice(Question question) {
         logger.info(String.format("ChatId=%d test %s- sendVoice with parameters (%s)", chatId, tag, question));
         for(String file : question.getMediaFiles()){
+            if (file.equals("")){
+                break;
+            }
             SendVoice voice = new SendVoice();
             voice.setChatId(chatId);
             voice.setVoice(new InputFile(new BufferedInputStream(getClass().getResourceAsStream("/media/" + tag + "/" + file)), file));
             try {
                 bot.execute(voice);
-                break;
+
             } catch (TelegramApiException e) {
                 logger.error(String.format("ChatId=%d test %s- sendVoice with parameters (%s)", chatId, tag, question));
                 logger.error(e.getStackTrace());
