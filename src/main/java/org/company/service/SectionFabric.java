@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 import org.company.bot.TelegramBot;
 import org.company.utils.QuestionsLoader;
 
-
+//Вероятно удалить и сделать из Test scope - prototype
 @Data
 public class SectionFabric {
     private static final Logger logger = Logger.getLogger(SectionFabric.class);

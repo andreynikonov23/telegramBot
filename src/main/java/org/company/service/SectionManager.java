@@ -1,5 +1,6 @@
 package org.company.service;
 
+//Удалить
 public interface SectionManager {
     void start();
     void initOrderQuestions();

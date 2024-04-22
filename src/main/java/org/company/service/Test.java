@@ -17,9 +17,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.io.*;
 import java.util.*;
 
+//Он не будет абстрактным, классы наследники удалить
+//Вохможно сделать из Test scope - prototype
 @Data
 @NoArgsConstructor
-public abstract class AbsSectionManager implements SectionManager, Serializable {
+public class Test implements SectionManager, Serializable {
     private String tag;
     private String user;
     private long chatId;
@@ -29,9 +31,9 @@ public abstract class AbsSectionManager implements SectionManager, Serializable 
     private int rightAnswersCount;
     private HashMap<Integer, String> USER_ANSWERS = new HashMap<>();
     private ArrayList<Integer> ORDER_QUESTIONS = new ArrayList<>();
-    private static final Logger logger = Logger.getLogger(AbsSectionManager.class);
+    private static final Logger logger = Logger.getLogger(Test.class);
 
-    public AbsSectionManager(long chatId, List<Question> questions){
+    public Test(long chatId, List<Question> questions){
         this.chatId = chatId;
         this.questions = questions;
         rightAnswersCount = 0;
@@ -39,18 +41,19 @@ public abstract class AbsSectionManager implements SectionManager, Serializable 
 
 
 
+    //Добавить параметр тег
     @Override
     public void start() {
         logger.info(String.format("ChatId=%d test %s start", chatId, tag));
 
-        ActiveTests.addActiveTest(chatId, this);
+        ActiveTests.activateTest(chatId, this);
         ActiveTests.saveTest(chatId, this);
         initOrderQuestions();
         sendQuestion();
     }
     public void continueTest() {
         logger.info(String.format("ChatId=%d test %s continue", chatId, tag));
-        ActiveTests.addActiveTest(chatId, this);
+        ActiveTests.activateTest(chatId, this);
         sendQuestion();
     }
 
@@ -148,6 +151,7 @@ public abstract class AbsSectionManager implements SectionManager, Serializable 
         ActiveTests.serialize();
         bot.sendMessage(chatId, resultMessageText.toString());
     }
+    //Добавить параметр номер вопроса
     public void check(String answer){
         logger.debug(String.format("ChatId=%d test %s check with parameter (%s)",chatId, tag, answer));
         int numberOfQuestion = ORDER_QUESTIONS.get(0);

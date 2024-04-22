@@ -3,7 +3,7 @@ package org.company.bot;
 import org.apache.log4j.Logger;
 import org.company.service.SectionFabric;
 import org.company.utils.ActiveTests;
-import org.company.utils.AnswerReceiver;
+import org.company.utils.AnswerRecognizer;
 import org.company.utils.UsersData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +16,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Autowired
     private SectionFabric fabric;
     @Autowired
-    private AnswerReceiver receiver;
+    private AnswerRecognizer receiver;
 
 
 
@@ -41,6 +40,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()){
             Message message =  update.getMessage();
+            //Сделать switch
             if (message.getText().equals("/start") || message.getText().equals("/help")){
                 if (message.getText().equals("/start")){
                     logger.debug(String.format("%s : ChatId=%s use /start", message.getChat().getUserName(), message.getChatId()));
@@ -62,108 +62,109 @@ public class TelegramBot extends TelegramLongPollingBot {
                 receiver.setText(message.getChatId(), message.getText());
             }
         }
+        //Сделать не так ёбнуто
         if (update.hasCallbackQuery()){
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             String callBack = update.getCallbackQuery().getData();
             logger.debug(String.format("%s : ChatId=%s use callback %s", update.getCallbackQuery().getFrom().getUserName(),chatId, callBack));
             switch (callBack) {
-                case (AnswerReceiver.CHI_CI_TAG) ->{
-                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.CHI_CI_TAG) == null){
+                case (AnswerRecognizer.CHI_CI_TAG) ->{
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.CHI_CI_TAG) == null){
                         fabric.getChiCiSection(chatId).start();
                     } else {
-                        sendContinueMessage(chatId, AnswerReceiver.CHI_CI_TAG);
+                        sendContinueMessage(chatId, AnswerRecognizer.CHI_CI_TAG);
                     }
                 }
-                case (AnswerReceiver.BACK_LANG_FINALS_TAG) -> {
-                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.BACK_LANG_FINALS_TAG) == null){
+                case (AnswerRecognizer.BACK_LANG_FINALS_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.BACK_LANG_FINALS_TAG) == null){
                         fabric.getBackLangFinalsSectionManager(chatId).start();
                     } else {
-                        sendContinueMessage(chatId, AnswerReceiver.BACK_LANG_FINALS_TAG);
+                        sendContinueMessage(chatId, AnswerRecognizer.BACK_LANG_FINALS_TAG);
                     }
                 }
-                case (AnswerReceiver.ASPIRATED_INITIALS_TAG) -> {
-                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.ASPIRATED_INITIALS_TAG) == null){
+                case (AnswerRecognizer.ASPIRATED_INITIALS_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.ASPIRATED_INITIALS_TAG) == null){
                         fabric.getAspiratedInitialsSectionManager(chatId).start();
                     } else {
-                        sendContinueMessage(chatId, AnswerReceiver.ASPIRATED_INITIALS_TAG);
+                        sendContinueMessage(chatId, AnswerRecognizer.ASPIRATED_INITIALS_TAG);
                     }
                 }
-                case (AnswerReceiver.E_FINAL_TAG) -> {
-                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.E_FINAL_TAG) == null){
+                case (AnswerRecognizer.E_FINAL_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.E_FINAL_TAG) == null){
                         fabric.getEFinalSectionManager(chatId).start();
                     } else {
-                        sendContinueMessage(chatId, AnswerReceiver.E_FINAL_TAG);
+                        sendContinueMessage(chatId, AnswerRecognizer.E_FINAL_TAG);
                     }
                 }
-                case (AnswerReceiver.IAN_IANG_TAG) -> {
-                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.IAN_IANG_TAG) == null){
+                case (AnswerRecognizer.IAN_IANG_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.IAN_IANG_TAG) == null){
                         fabric.getIanIangSectionManager(chatId).start();
                     } else {
-                        sendContinueMessage(chatId, AnswerReceiver.IAN_IANG_TAG);
+                        sendContinueMessage(chatId, AnswerRecognizer.IAN_IANG_TAG);
                     }
                 }
-                case (AnswerReceiver.JQX_INITIALS_TAG) -> {
-                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.JQX_INITIALS_TAG) == null){
+                case (AnswerRecognizer.JQX_INITIALS_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.JQX_INITIALS_TAG) == null){
                         fabric.getJqxInitialsSectionManager(chatId).start();
                     } else {
-                        sendContinueMessage(chatId, AnswerReceiver.JQX_INITIALS_TAG);
+                        sendContinueMessage(chatId, AnswerRecognizer.JQX_INITIALS_TAG);
                     }
                 }
-                case (AnswerReceiver.R_INITIAL_TAG) -> {
-                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.R_INITIAL_TAG) == null){
+                case (AnswerRecognizer.R_INITIAL_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.R_INITIAL_TAG) == null){
                         fabric.getRInitialsSectionManager(chatId).start();
                     } else {
-                        sendContinueMessage(chatId, AnswerReceiver.R_INITIAL_TAG);
+                        sendContinueMessage(chatId, AnswerRecognizer.R_INITIAL_TAG);
                     }
                 }
-                case (AnswerReceiver.SPECIAL_FINALS_TAG) -> {
-                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.SPECIAL_FINALS_TAG) == null){
+                case (AnswerRecognizer.SPECIAL_FINALS_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.SPECIAL_FINALS_TAG) == null){
                         fabric.getSpecialFinalSectionManager(chatId).start();
                     } else {
-                        sendContinueMessage(chatId, AnswerReceiver.SPECIAL_FINALS_TAG);
+                        sendContinueMessage(chatId, AnswerRecognizer.SPECIAL_FINALS_TAG);
                     }
                 }
-                case (AnswerReceiver.U_FINAL_TAG) -> {
-                    if (ActiveTests.getIncompleteTest(chatId, AnswerReceiver.U_FINAL_TAG) == null){
+                case (AnswerRecognizer.U_FINAL_TAG) -> {
+                    if (ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.U_FINAL_TAG) == null){
                         fabric.getUFinalSectionManager(chatId).start();
                     } else {
-                        sendContinueMessage(chatId, AnswerReceiver.U_FINAL_TAG);
+                        sendContinueMessage(chatId, AnswerRecognizer.U_FINAL_TAG);
                     }
                 }
                 case ("yes-chi-ci") ->
-                    ActiveTests.getIncompleteTest(chatId, AnswerReceiver.CHI_CI_TAG).continueTest();
+                    ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.CHI_CI_TAG).continueTest();
                 case ("no-chi-ci") ->
                         fabric.getChiCiSection(chatId).start();
                 case ("yes-back-lang-finals") ->
-                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.BACK_LANG_FINALS_TAG).continueTest();
+                        ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.BACK_LANG_FINALS_TAG).continueTest();
                 case ("no-back-lang-finals") ->
                         fabric.getBackLangFinalsSectionManager(chatId).start();
                 case ("yes-aspirated-initials") ->
-                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.ASPIRATED_INITIALS_TAG).continueTest();
+                        ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.ASPIRATED_INITIALS_TAG).continueTest();
                 case ("no-aspirated-initials") ->
                         fabric.getAspiratedInitialsSectionManager(chatId).start();
                 case ("yes-e-final") ->
-                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.E_FINAL_TAG).continueTest();
+                        ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.E_FINAL_TAG).continueTest();
                 case ("no-e-final") ->
                         fabric.getEFinalSectionManager(chatId).start();
                 case ("yes-ian-iang") ->
-                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.IAN_IANG_TAG).continueTest();
+                        ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.IAN_IANG_TAG).continueTest();
                 case ("no-ian-iang") ->
                         fabric.getIanIangSectionManager(chatId).start();
                 case ("yes-jqx-initials") ->
-                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.JQX_INITIALS_TAG).continueTest();
+                        ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.JQX_INITIALS_TAG).continueTest();
                 case ("no-jqx-initials") ->
                         fabric.getJqxInitialsSectionManager(chatId).start();
                 case ("yes-r-initials") ->
-                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.R_INITIAL_TAG).continueTest();
+                        ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.R_INITIAL_TAG).continueTest();
                 case ("no-r-initials") ->
                         fabric.getRInitialsSectionManager(chatId).start();
                 case ("yes-special-final") ->
-                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.SPECIAL_FINALS_TAG).continueTest();
+                        ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.SPECIAL_FINALS_TAG).continueTest();
                 case ("no-special-final") ->
                         fabric.getSpecialFinalSectionManager(chatId).start();
                 case ("yes-u-final") ->
-                        ActiveTests.getIncompleteTest(chatId, AnswerReceiver.U_FINAL_TAG).continueTest();
+                        ActiveTests.getIncompleteTest(chatId, AnswerRecognizer.U_FINAL_TAG).continueTest();
                 case ("no-u-final") ->
                         fabric.getUFinalSectionManager(chatId).start();
                 default -> receiver.setCallbackAnswer(update.getCallbackQuery().getMessage().getChatId(), update.getCallbackQuery().getMessage().getMessageId(), callBack);
@@ -265,6 +266,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             throw new RuntimeException(e);
         }
     }
+    //Перенести в Test
     public void editMessage(long chatId, int messageId, String question, String answer){
         EditMessageText message = new EditMessageText();
         message.setChatId(chatId);

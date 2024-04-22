@@ -6,9 +6,10 @@ import org.company.model.AnswerType;
 import org.company.service.*;
 
 
-public class AnswerReceiver {
+public class AnswerRecognizer {
     private TelegramBot bot;
-    private static final Logger logger = Logger.getLogger(AnswerReceiver.class);
+    //Вывести в какой-нибудь отдельный класс
+    private static final Logger logger = Logger.getLogger(AnswerRecognizer.class);
     public static final String CHI_CI_TAG = "chi-ci";
     public static final String ASPIRATED_INITIALS_TAG = "aspirated-initials";
     public static final String BACK_LANG_FINALS_TAG = "back-lang-finals";
@@ -19,7 +20,7 @@ public class AnswerReceiver {
     public static final String E_FINAL_TAG = "e-final";
     public static final String U_FINAL_TAG = "u-final";
 
-    public AnswerReceiver(TelegramBot bot) {
+    public AnswerRecognizer(TelegramBot bot) {
         this.bot = bot;
     }
 
@@ -31,7 +32,7 @@ public class AnswerReceiver {
         switch (tag) {
             case (CHI_CI_TAG) -> {
                 ChiCiSectionManager chiCiSectionManager;
-                for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
+                for (Test sectionManager : ActiveTests.getTestsSet(chatId)){
                     if (sectionManager.getTag().equals(CHI_CI_TAG)){
                         chiCiSectionManager = (ChiCiSectionManager) sectionManager;
                         chiCiSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
@@ -40,7 +41,7 @@ public class AnswerReceiver {
             }
             case (ASPIRATED_INITIALS_TAG) ->{
                 AspiratedInitialsSectionManager aspiratedInitialsSectionManager;
-                for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
+                for (Test sectionManager : ActiveTests.getTestsSet(chatId)){
                     if (sectionManager.getTag().equals(ASPIRATED_INITIALS_TAG)){
                         aspiratedInitialsSectionManager = (AspiratedInitialsSectionManager) sectionManager;
                         aspiratedInitialsSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
@@ -49,7 +50,7 @@ public class AnswerReceiver {
             }
             case (BACK_LANG_FINALS_TAG) ->{
                 BackLangFinalsSectionManager backLangFinalsSectionManager;
-                for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
+                for (Test sectionManager : ActiveTests.getTestsSet(chatId)){
                     if (sectionManager.getTag().equals(BACK_LANG_FINALS_TAG)){
                         backLangFinalsSectionManager = (BackLangFinalsSectionManager) sectionManager;
                         backLangFinalsSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
@@ -58,7 +59,7 @@ public class AnswerReceiver {
             }
             case (E_FINAL_TAG) ->{
                 EFinalSectionManager eFinalSectionManager;
-                for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
+                for (Test sectionManager : ActiveTests.getTestsSet(chatId)){
                     if (sectionManager.getTag().equals(E_FINAL_TAG)){
                         eFinalSectionManager = (EFinalSectionManager) sectionManager;
                         eFinalSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
@@ -67,7 +68,7 @@ public class AnswerReceiver {
             }
             case (IAN_IANG_TAG) ->{
                 IanIangSectionManager ianIangSectionManager;
-                for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
+                for (Test sectionManager : ActiveTests.getTestsSet(chatId)){
                     if (sectionManager.getTag().equals(IAN_IANG_TAG)){
                         ianIangSectionManager = (IanIangSectionManager) sectionManager;
                         ianIangSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
@@ -76,7 +77,7 @@ public class AnswerReceiver {
             }
             case (JQX_INITIALS_TAG) ->{
                 JqxInitialsSectionManager jqxInitialsSectionManager;
-                for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
+                for (Test sectionManager : ActiveTests.getTestsSet(chatId)){
                     if (sectionManager.getTag().equals(JQX_INITIALS_TAG)){
                         jqxInitialsSectionManager = (JqxInitialsSectionManager) sectionManager;
                         jqxInitialsSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
@@ -85,7 +86,7 @@ public class AnswerReceiver {
             }
             case (R_INITIAL_TAG) ->{
                 RInitialsSectionManager rInitialsSectionManager;
-                for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
+                for (Test sectionManager : ActiveTests.getTestsSet(chatId)){
                     if (sectionManager.getTag().equals(R_INITIAL_TAG)){
                         rInitialsSectionManager = (RInitialsSectionManager) sectionManager;
                         rInitialsSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
@@ -94,7 +95,7 @@ public class AnswerReceiver {
             }
             case (SPECIAL_FINALS_TAG) ->{
                 SpecialFinalSectionManager specialFinalSectionManager;
-                for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
+                for (Test sectionManager : ActiveTests.getTestsSet(chatId)){
                     if (sectionManager.getTag().equals(SPECIAL_FINALS_TAG)){
                         specialFinalSectionManager = (SpecialFinalSectionManager) sectionManager;
                         specialFinalSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
@@ -103,7 +104,7 @@ public class AnswerReceiver {
             }
             case (U_FINAL_TAG) ->{
                 UFinalSectionManager uFinalSectionManager;
-                for (AbsSectionManager sectionManager : ActiveTests.getSectionManagersSet(chatId)){
+                for (Test sectionManager : ActiveTests.getTestsSet(chatId)){
                     if (sectionManager.getTag().equals(U_FINAL_TAG)){
                         uFinalSectionManager = (UFinalSectionManager) sectionManager;
                         uFinalSectionManager.setCallbackAnswer(messageId, numberOfQuestion, answer);
@@ -114,7 +115,7 @@ public class AnswerReceiver {
     }
     public void setText(long chatId, String text){
         //тут проверка
-        AbsSectionManager sectionManager = ActiveTests.getActiveSectionManager(chatId);
+        Test sectionManager = ActiveTests.getActiveTest(chatId);
         if (sectionManager.getActiveQuestion().getType() == AnswerType.INPUT){
             sectionManager.setTextAnswer(text);
         } else {

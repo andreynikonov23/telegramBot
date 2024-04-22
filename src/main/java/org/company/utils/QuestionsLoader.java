@@ -12,7 +12,6 @@ import org.springframework.core.io.Resource;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -37,31 +36,31 @@ public class QuestionsLoader {
 
     //Добавить проверку
     public List<Question> getChiCiQuestionsList() {
-        return getQuestionList(AnswerReceiver.CHI_CI_TAG);
+        return getQuestionList(AnswerRecognizer.CHI_CI_TAG);
     }
     public List<Question> getAspiratedInitialsQuestionsList(){
-        return getQuestionList(AnswerReceiver.ASPIRATED_INITIALS_TAG);
+        return getQuestionList(AnswerRecognizer.ASPIRATED_INITIALS_TAG);
     }
     public List<Question> getBackLangFinalsQuestionsList(){
-        return getQuestionList(AnswerReceiver.BACK_LANG_FINALS_TAG);
+        return getQuestionList(AnswerRecognizer.BACK_LANG_FINALS_TAG);
     }
     public List<Question> getEFinalQuestionsList(){
-        return getQuestionList(AnswerReceiver.E_FINAL_TAG);
+        return getQuestionList(AnswerRecognizer.E_FINAL_TAG);
     }
     public List<Question> getJqxInitialsQuestionsList(){
-        return getQuestionList(AnswerReceiver.JQX_INITIALS_TAG);
+        return getQuestionList(AnswerRecognizer.JQX_INITIALS_TAG);
     }
     public List<Question> getRInitialsQuestionsList(){
-        return getQuestionList(AnswerReceiver.R_INITIAL_TAG);
+        return getQuestionList(AnswerRecognizer.R_INITIAL_TAG);
     }
     public List<Question> getSpecialFinalQuestionsList(){
-        return getQuestionList(AnswerReceiver.SPECIAL_FINALS_TAG);
+        return getQuestionList(AnswerRecognizer.SPECIAL_FINALS_TAG);
     }
     public List<Question> getIanIangQuestionsList(){
-        return getQuestionList(AnswerReceiver.IAN_IANG_TAG);
+        return getQuestionList(AnswerRecognizer.IAN_IANG_TAG);
     }
     public List<Question> getUFinalQuestionsList(){
-        return getQuestionList(AnswerReceiver.U_FINAL_TAG);
+        return getQuestionList(AnswerRecognizer.U_FINAL_TAG);
     }
 
     private List<Question> getQuestionList(String tag) {

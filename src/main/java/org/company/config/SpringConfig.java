@@ -3,26 +3,19 @@ package org.company.config;
 import org.apache.log4j.Logger;
 import org.company.bot.TelegramBot;
 import org.company.service.*;
-import org.company.utils.ActiveTests;
-import org.company.utils.AnswerReceiver;
+import org.company.utils.AnswerRecognizer;
 import org.company.utils.QuestionsLoader;
 import org.company.utils.UsersData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.core.io.Resource;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 
 @Configuration
 @ComponentScan("org.company")
@@ -32,13 +25,6 @@ public class SpringConfig {
    @Autowired
    private ApplicationContext applicationContext;
 
-
-   @PostConstruct
-   public void postConstruct() throws IOException {
-       //Десериализация ActiveTests
-       logger.debug("postConstruct method");
-
-   }
 
     @Bean
     public UsersData usersData(){
@@ -67,7 +53,7 @@ public class SpringConfig {
         return new SectionFabric(telegramBot(), questionsLoader());
     }
     @Bean
-    public AnswerReceiver receiver(){
-        return new AnswerReceiver(telegramBot());
+    public AnswerRecognizer receiver(){
+        return new AnswerRecognizer(telegramBot());
     }
 }
