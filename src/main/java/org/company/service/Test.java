@@ -7,6 +7,7 @@ import org.company.bot.TelegramBot;
 import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.company.utils.ActiveTests;
+import org.company.utils.QuestionsLoader;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
@@ -18,15 +19,16 @@ import java.io.*;
 import java.util.*;
 
 //Он не будет абстрактным, классы наследники удалить
-//Вохможно сделать из Test scope - prototype
+//Возможно сделать из Test scope - prototype
 @Data
 @NoArgsConstructor
-public class Test implements SectionManager, Serializable {
+public class Test implements Serializable {
     private String tag;
     private String user;
     private long chatId;
     private int messageId;
     private transient TelegramBot bot;
+    private QuestionsLoader questionsLoader;
     private List<Question> questions;
     private int rightAnswersCount;
     private HashMap<Integer, String> USER_ANSWERS = new HashMap<>();
@@ -42,22 +44,23 @@ public class Test implements SectionManager, Serializable {
 
 
     //Добавить параметр тег
-    @Override
-    public void start() {
+    public void start(String tag) {
         logger.info(String.format("ChatId=%d test %s start", chatId, tag));
 
+        this.tag = tag;
+        loadQuestions();
         ActiveTests.activateTest(chatId, this);
         ActiveTests.saveTest(chatId, this);
         initOrderQuestions();
         sendQuestion();
     }
+
     public void continueTest() {
         logger.info(String.format("ChatId=%d test %s continue", chatId, tag));
         ActiveTests.activateTest(chatId, this);
         sendQuestion();
     }
 
-    @Override
     public void initOrderQuestions(){
         logger.info(String.format("ChatId=%d test %s - initOrderQuestion()", chatId, tag));
         for (int i = 0; i < questions.size(); i++) {
@@ -66,7 +69,6 @@ public class Test implements SectionManager, Serializable {
         Collections.shuffle(ORDER_QUESTIONS);
     }
 
-    @Override
     public void sendQuestion() {
         if (ORDER_QUESTIONS.isEmpty()){
             result();
@@ -82,7 +84,6 @@ public class Test implements SectionManager, Serializable {
         }
     }
 
-    @Override
     public void setCallbackAnswer(Integer messageId, Integer numberOfQuestion, String answer) {
         logger.info(String.format("ChatId=%d test %s - setCallbackAnswer with parameters (%d, %d, %s)",chatId, tag, messageId, numberOfQuestion, answer));
         Question question = questions.get(numberOfQuestion);
@@ -104,7 +105,6 @@ public class Test implements SectionManager, Serializable {
         sendQuestion();
     }
 
-    @Override
     public void setTextAnswer(String text) {
         logger.info(String.format("ChatId=%d test %s - setTextAnswer with parameter (%s)",chatId, tag, text));
         check(text);
@@ -115,7 +115,6 @@ public class Test implements SectionManager, Serializable {
         sendQuestion();
     }
 
-    @Override
     public void result() {
         logger.info(String.format("ChatId=%d test %s - send result test", chatId, tag));
         StringBuilder resultMessageText = new StringBuilder();
@@ -151,6 +150,7 @@ public class Test implements SectionManager, Serializable {
         ActiveTests.serialize();
         bot.sendMessage(chatId, resultMessageText.toString());
     }
+
     //Добавить параметр номер вопроса
     public void check(String answer){
         logger.debug(String.format("ChatId=%d test %s check with parameter (%s)",chatId, tag, answer));
@@ -169,6 +169,11 @@ public class Test implements SectionManager, Serializable {
     public Question getActiveQuestion(){
         return questions.get(ORDER_QUESTIONS.get(0));
     }
+
+    private void loadQuestions(){
+        questions = questionsLoader.getQuestionList(tag);
+    }
+
     private void sendChoiceQuestion(Question question, int num){
         SendMessage message = new SendMessage();
         String text = question.getQuestionTxt();
@@ -207,6 +212,7 @@ public class Test implements SectionManager, Serializable {
             throw new RuntimeException(e);
         }
     }
+
     private void sendInputQuestion(Question question, int num){
         logger.info(String.format("ChatId=%d test %s- sendInputAnswer with parameters (%s, %s)", chatId, tag, question, num));
         bot.sendMessage(chatId, question.getQuestionTxt());
@@ -214,6 +220,7 @@ public class Test implements SectionManager, Serializable {
             sendVoice(question);
         }
     }
+
     private void sendVoice(Question question) {
         logger.info(String.format("ChatId=%d test %s- sendVoice with parameters (%s)", chatId, tag, question));
         for(String file : question.getMediaFiles()){
@@ -233,5 +240,4 @@ public class Test implements SectionManager, Serializable {
             }
         }
     }
-
 }

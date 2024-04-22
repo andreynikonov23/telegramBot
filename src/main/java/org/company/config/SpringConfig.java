@@ -31,10 +31,9 @@ public class SpringConfig {
        return new UsersData();
     }
     @Bean
-    public QuestionsLoader questionsLoader() throws IOException {
+    public QuestionsLoader questionsLoader() {
         logger.debug("Creating questionsLoaderBean");
-        Resource media = applicationContext.getResource("classpath:/media/");
-        return new QuestionsLoader(media);
+        return new QuestionsLoader();
     }
     @Bean
     public TelegramBot telegramBot(){
@@ -49,8 +48,10 @@ public class SpringConfig {
         return telegramBotsApi;
     }
     @Bean
-    public SectionFabric sectionFabric() throws IOException {
-        return new SectionFabric(telegramBot(), questionsLoader());
+    @Scope("prototype")
+    public Test test(){
+        Test test = new Test();
+        return test;
     }
     @Bean
     public AnswerRecognizer receiver(){
