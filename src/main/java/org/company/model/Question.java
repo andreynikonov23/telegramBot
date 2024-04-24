@@ -26,7 +26,7 @@ public class Question implements Serializable {
     private AnswerType type;
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.format("[%s, %s, %s, %s, %s, %s, %s]", questionTxt, answerA, answerB, answerC, answerD, answerE, rightAnswer);
     }
 }

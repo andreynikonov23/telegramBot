@@ -3,43 +3,37 @@ package org.company.config;
 import org.apache.log4j.Logger;
 import org.company.bot.TelegramBot;
 import org.company.service.*;
-import org.company.utils.AnswerRecognizer;
-import org.company.utils.QuestionsLoader;
-import org.company.utils.UsersData;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.company.service.UpdateRecognizer;
+import org.company.data.QuestionsLoader;
+import org.company.data.UsersData;
 import org.springframework.context.annotation.*;
-import org.springframework.core.io.Resource;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-
 @Configuration
-@ComponentScan("org.company")
 @PropertySource("classpath:data.properties")
 public class SpringConfig {
-   private static final Logger logger = Logger.getLogger(SpringConfig.class);
-   @Autowired
-   private ApplicationContext applicationContext;
+    private static final Logger logger = Logger.getLogger(SpringConfig.class);
 
 
     @Bean
-    public UsersData usersData(){
-       return new UsersData();
+    public UsersData usersData() {
+        return new UsersData();
     }
+
     @Bean
     public QuestionsLoader questionsLoader() {
         logger.debug("Creating questionsLoaderBean");
         return new QuestionsLoader();
     }
+
     @Bean
-    public TelegramBot telegramBot(){
+    public TelegramBot telegramBot() {
         logger.debug("Creating telegramBotBean");
         return new TelegramBot();
     }
+
     @Bean
     public TelegramBotsApi telegramBotsApi(TelegramBot bot) throws TelegramApiException {
         logger.debug("Creating telegramBotsApiBean");
@@ -47,14 +41,15 @@ public class SpringConfig {
         telegramBotsApi.registerBot(bot);
         return telegramBotsApi;
     }
+
+    @Bean
+    public UpdateRecognizer receiver() {
+        return new UpdateRecognizer(telegramBot());
+    }
+
     @Bean
     @Scope("prototype")
-    public Test test(){
-        Test test = new Test();
-        return test;
-    }
-    @Bean
-    public AnswerRecognizer receiver(){
-        return new AnswerRecognizer(telegramBot());
+    public Test test() {
+        return new Test(telegramBot(), questionsLoader());
     }
 }

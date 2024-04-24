@@ -2,7 +2,7 @@ package org.company;
 
 import org.apache.log4j.Logger;
 import org.company.config.SpringConfig;
-import org.company.utils.ActiveTests;
+import org.company.data.ActiveTests;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.PropertySource;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -17,7 +17,7 @@ public class Main {
         logger.debug("Start application");
         AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(SpringConfig.class);
         ActiveTests.deserialize(applicationContext);
-        TelegramBotsApi telegramBotsApi = applicationContext.getBean(TelegramBotsApi.class);
+        applicationContext.getBean(TelegramBotsApi.class);
         logger.debug("Telegram Bot started...");
     }
 }

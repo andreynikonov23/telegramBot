@@ -1,4 +1,4 @@
-package org.company.utils;
+package org.company.data;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
@@ -16,25 +16,27 @@ public class UsersData {
     private final String FILE_PATH = "C:/telegramBotConf/users.csv";
     private final List<String> USERS = new ArrayList<>();
 
-    public UsersData(){
+
+    public UsersData() {
         createFileIfItDoesNotExists();
-        loadUsers();
+        loadUsersInList();
     }
 
-    public void createFileIfItDoesNotExists(){
+    public void createFileIfItDoesNotExists() {
         logger.debug("Creating users.csv");
         File file = new File(FILE_PATH);
-        if (!(file.exists())){
+        if (!(file.exists())) {
             try {
                 Files.createFile(Path.of(FILE_PATH));
             } catch (IOException e) {
                 logger.error("Creating users.csv");
-                logger.error(e.getStackTrace());
+                e.getStackTrace();
                 throw new RuntimeException(e);
             }
         }
     }
-    public void loadUsers(){
+
+    public void loadUsersInList() {
         logger.debug("Reading users.csv");
         List<String[]> strings;
         try (CSVReader csvReader = new CSVReader(new FileReader(FILE_PATH))) {
@@ -43,29 +45,31 @@ public class UsersData {
             throw new RuntimeException(e);
         }
 
-        for (String[] str : strings){
+        for (String[] str : strings) {
             USERS.add(str[1]);
         }
     }
-    public void setNewUser(String username){
+
+    public void setNewUser(String username) {
         logger.debug("Set new user " + username);
         USERS.add(username);
         try (CSVWriter csvWriter = new CSVWriter(new FileWriter(FILE_PATH))) {
             List<String[]> allLines = new ArrayList<>();
-            for (int i=0; i<USERS.size(); i++){
-                String[] line = {String.valueOf(i+1), USERS.get(i)};
+            for (int i = 0; i < USERS.size(); i++) {
+                String[] line = {String.valueOf(i + 1), USERS.get(i)};
                 allLines.add(line);
             }
             csvWriter.writeAll(allLines);
         } catch (IOException e) {
             logger.error("Set new user " + username);
-            logger.error(e.getStackTrace());
+            e.getStackTrace();
             throw new RuntimeException(e);
         }
     }
-    public boolean isNewUser(String username){
+
+    public boolean addIfItIsNewUser(String username) {
         boolean isTrue = false;
-        if (!(USERS.contains(username))){
+        if (!(USERS.contains(username))) {
             isTrue = true;
             setNewUser(username);
         }

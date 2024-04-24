@@ -1,4 +1,4 @@
-package org.company.utils;
+package org.company.data;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.apache.log4j.Logger;
 import org.company.model.AnswerType;
 import org.company.model.Question;
-import org.springframework.core.io.Resource;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -27,7 +26,7 @@ public class QuestionsLoader {
         List<Question> questions = new ArrayList<>();
 
         List<String[]> strings;
-        try (CSVReader reader = new CSVReaderBuilder(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(questionDir + "tasks.csv")))).withSkipLines(1).build()){
+        try (CSVReader reader = new CSVReaderBuilder(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(questionDir + "tasks.csv")))).withSkipLines(1).build()) {
             strings = reader.readAll();
         } catch (IOException | CsvException e) {
             e.printStackTrace();
@@ -46,10 +45,9 @@ public class QuestionsLoader {
     }
 
     private void parseToQuestionList(List<String[]> strings, List<Question> questions) throws IOException {
-        for (String[] arr : strings){
+        for (String[] arr : strings) {
             for (int i = 0; i < arr.length; i++) {
                 arr[i] = new String(arr[i].getBytes(), StandardCharsets.UTF_8);
-                System.out.println(arr[i]);
             }
             Question question = new Question();
             question.setQuestionTxt(arr[0]);
@@ -61,20 +59,20 @@ public class QuestionsLoader {
             question.setRightAnswer(arr[6]);
 
             List<String> mediaFiles = new ArrayList<>();
-            if (!(arr[7].equals(""))){
+            if (!(arr[7].equals(""))) {
                 mediaFiles.add(arr[7]);
             }
-            if (!(arr[8].equals(""))){
+            if (!(arr[8].equals(""))) {
                 mediaFiles.add(arr[8]);
             }
-            if (!(arr[9].equals(""))){
+            if (!(arr[9].equals(""))) {
                 mediaFiles.add(arr[9]);
             }
             question.setMediaFiles(mediaFiles);
 
-            if (arr[10].equals("choice")){
+            if (arr[10].equals("choice")) {
                 question.setType(AnswerType.CHOICE);
-            } else if (arr[10].equals("input")){
+            } else if (arr[10].equals("input")) {
                 question.setType(AnswerType.INPUT);
             }
 
