@@ -2,7 +2,7 @@ package org.company.data;
 
 import org.apache.log4j.Logger;
 import org.company.bot.TelegramBot;
-import org.company.service.Test;
+import org.company.service.Task;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.*;
@@ -16,18 +16,18 @@ public class ActiveTests implements Serializable {
     private static final Logger logger = Logger.getLogger(ActiveTests.class);
 
     private static final File DATA_FILE = new File("C:\\telegramBotConf\\file.dat");
-    private static HashMap<Long, Set<Test>> savedTests;
-    private static HashMap<Long, Test> activeTests;
+    private static HashMap<Long, Set<Task>> savedTests;
+    private static HashMap<Long, Task> activeTests;
 
 
-    public static void saveTest(Long chatId, Test sectionManager) {
+    public static void saveTest(Long chatId, Task sectionManager) {
         logger.info(String.format("addActiveTest with Parameters (%d, %s)", chatId, sectionManager));
         if (savedTests.containsKey(chatId)) {
             savedTests.get(chatId).add(sectionManager);
             serialize();
             logger.info(String.format("saveTests add new key-value %d-%s", chatId, sectionManager));
         } else {
-            Set<Test> set = new HashSet<>();
+            Set<Task> set = new HashSet<>();
             set.add(sectionManager);
             savedTests.put(chatId, set);
             serialize();
@@ -35,13 +35,13 @@ public class ActiveTests implements Serializable {
         }
     }
 
-    public static void activateTest(Long chatId, Test sectionManager) {
+    public static void activateTest(Long chatId, Task sectionManager) {
         logger.debug(String.format("addActiveTest with Parameters (%d, %s)", chatId, sectionManager));
         activeTests.put(chatId, sectionManager);
         serialize();
     }
 
-    public static Test getActiveTest(long chatId) {
+    public static Task getActiveTest(long chatId) {
         return activeTests.get(chatId);
     }
 
@@ -52,18 +52,18 @@ public class ActiveTests implements Serializable {
         logger.info(String.format("ChatId=%d test %s hashMaps clear", chatId, tag));
     }
 
-    public static Test getIncompleteTest(long chatId, String tag) {
+    public static Task getIncompleteTest(long chatId, String tag) {
         logger.info(String.format("ChatId=%d getIncompleteTest()", chatId));
-        Test incompleteTest = null;
+        Task incompleteTask = null;
         if (savedTests.containsKey(chatId)) {
-            for (Test test : savedTests.get(chatId)) {
-                if (test.getTag().equals(tag)) {
-                    incompleteTest = test;
+            for (Task task : savedTests.get(chatId)) {
+                if (task.getTag().equals(tag)) {
+                    incompleteTask = task;
                     break;
                 }
             }
         }
-        return incompleteTest;
+        return incompleteTask;
     }
 
     public static void serialize() {
@@ -89,12 +89,12 @@ public class ActiveTests implements Serializable {
         } else if (Files.size(DATA_FILE.toPath()) > 0) {
             logger.debug("deserialization data...");
             try (ObjectInputStream stream = new ObjectInputStream(new FileInputStream(DATA_FILE))) {
-                savedTests = (HashMap<Long, Set<Test>>) stream.readObject();
-                activeTests = (HashMap<Long, Test>) stream.readObject();
-                for (Map.Entry<Long, Set<Test>> entry : savedTests.entrySet()) {
-                    for (Test test : entry.getValue()) {
-                        test.setBot(context.getBean(TelegramBot.class));
-                        test.setQuestionsLoader(context.getBean(QuestionsLoader.class));
+                savedTests = (HashMap<Long, Set<Task>>) stream.readObject();
+                activeTests = (HashMap<Long, Task>) stream.readObject();
+                for (Map.Entry<Long, Set<Task>> entry : savedTests.entrySet()) {
+                    for (Task task : entry.getValue()) {
+                        task.setBot(context.getBean(TelegramBot.class));
+                        task.setQuestionsLoader(context.getBean(QuestionsLoader.class));
                     }
                 }
             } catch (IOException | ClassNotFoundException e) {
