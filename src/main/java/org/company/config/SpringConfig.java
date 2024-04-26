@@ -49,7 +49,7 @@ public class SpringConfig {
 
     @Bean
     @Scope("prototype")
-    public Test test() {
-        return new Test(telegramBot(), questionsLoader());
+    public Task task() {
+        return new Task(telegramBot(), questionsLoader());
     }
 }

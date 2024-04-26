@@ -12,51 +12,51 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class ActiveTests implements Serializable {
-    private static final Logger logger = Logger.getLogger(ActiveTests.class);
+public class ActiveTasks implements Serializable {
+    private static final Logger logger = Logger.getLogger(ActiveTasks.class);
 
     private static final File DATA_FILE = new File("C:\\telegramBotConf\\file.dat");
-    private static HashMap<Long, Set<Task>> savedTests;
-    private static HashMap<Long, Task> activeTests;
+    private static HashMap<Long, Set<Task>> savedTasks;
+    private static HashMap<Long, Task> activeTasks;
 
 
-    public static void saveTest(Long chatId, Task sectionManager) {
-        logger.info(String.format("addActiveTest with Parameters (%d, %s)", chatId, sectionManager));
-        if (savedTests.containsKey(chatId)) {
-            savedTests.get(chatId).add(sectionManager);
+    public static void saveTask(Long chatId, Task sectionManager) {
+        logger.info(String.format("addActiveTask with Parameters (%d, %s)", chatId, sectionManager));
+        if (savedTasks.containsKey(chatId)) {
+            savedTasks.get(chatId).add(sectionManager);
             serialize();
-            logger.info(String.format("saveTests add new key-value %d-%s", chatId, sectionManager));
+            logger.info(String.format("saveTask add new key-value %d-%s", chatId, sectionManager));
         } else {
             Set<Task> set = new HashSet<>();
             set.add(sectionManager);
-            savedTests.put(chatId, set);
+            savedTasks.put(chatId, set);
             serialize();
-            logger.info(String.format("saveTests key=%s put=%s", chatId, sectionManager));
+            logger.info(String.format("saveTask key=%s put=%s", chatId, sectionManager));
         }
     }
 
-    public static void activateTest(Long chatId, Task sectionManager) {
-        logger.debug(String.format("addActiveTest with Parameters (%d, %s)", chatId, sectionManager));
-        activeTests.put(chatId, sectionManager);
+    public static void activateTask(Long chatId, Task sectionManager) {
+        logger.debug(String.format("addActiveTask with Parameters (%d, %s)", chatId, sectionManager));
+        activeTasks.put(chatId, sectionManager);
         serialize();
     }
 
-    public static Task getActiveTest(long chatId) {
-        return activeTests.get(chatId);
+    public static Task getActiveTask(long chatId) {
+        return activeTasks.get(chatId);
     }
 
     public static void clear(Long chatId, String tag) {
-        savedTests.get(chatId).removeIf(section -> section.getTag().equals(tag));
-        activeTests.remove(chatId);
+        savedTasks.get(chatId).removeIf(section -> section.getTag().equals(tag));
+        activeTasks.remove(chatId);
         serialize();
-        logger.info(String.format("ChatId=%d test %s hashMaps clear", chatId, tag));
+        logger.info(String.format("ChatId=%d task %s hashMaps clear", chatId, tag));
     }
 
-    public static Task getIncompleteTest(long chatId, String tag) {
-        logger.info(String.format("ChatId=%d getIncompleteTest()", chatId));
+    public static Task getIncompleteTask(long chatId, String tag) {
+        logger.info(String.format("ChatId=%d getIncompleteTask()", chatId));
         Task incompleteTask = null;
-        if (savedTests.containsKey(chatId)) {
-            for (Task task : savedTests.get(chatId)) {
+        if (savedTasks.containsKey(chatId)) {
+            for (Task task : savedTasks.get(chatId)) {
                 if (task.getTag().equals(tag)) {
                     incompleteTask = task;
                     break;
@@ -69,8 +69,8 @@ public class ActiveTests implements Serializable {
     public static void serialize() {
         logger.debug("saving data");
         try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(DATA_FILE))) {
-            stream.writeObject(savedTests);
-            stream.writeObject(activeTests);
+            stream.writeObject(savedTasks);
+            stream.writeObject(activeTasks);
         } catch (FileNotFoundException e) {
             logger.error("saving data error");
             throw new RuntimeException(e);
@@ -89,9 +89,9 @@ public class ActiveTests implements Serializable {
         } else if (Files.size(DATA_FILE.toPath()) > 0) {
             logger.debug("deserialization data...");
             try (ObjectInputStream stream = new ObjectInputStream(new FileInputStream(DATA_FILE))) {
-                savedTests = (HashMap<Long, Set<Task>>) stream.readObject();
-                activeTests = (HashMap<Long, Task>) stream.readObject();
-                for (Map.Entry<Long, Set<Task>> entry : savedTests.entrySet()) {
+                savedTasks = (HashMap<Long, Set<Task>>) stream.readObject();
+                activeTasks = (HashMap<Long, Task>) stream.readObject();
+                for (Map.Entry<Long, Set<Task>> entry : savedTasks.entrySet()) {
                     for (Task task : entry.getValue()) {
                         task.setBot(context.getBean(TelegramBot.class));
                         task.setQuestionsLoader(context.getBean(QuestionsLoader.class));
@@ -108,7 +108,7 @@ public class ActiveTests implements Serializable {
     }
 
     private static void initSets() {
-        savedTests = new HashMap<>();
-        activeTests = new HashMap<>();
+        savedTasks = new HashMap<>();
+        activeTasks = new HashMap<>();
     }
 }

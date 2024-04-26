@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 import org.company.bot.TelegramBot;
 import org.company.model.AnswerType;
 import org.company.model.Question;
-import org.company.data.ActiveTests;
+import org.company.data.ActiveTasks;
 import org.company.data.QuestionsLoader;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
@@ -24,8 +24,8 @@ import java.util.List;
 
 
 @Data
-public class Test implements Serializable {
-    private static final Logger logger = Logger.getLogger(Test.class);
+public class Task implements Serializable {
+    private static final Logger logger = Logger.getLogger(Task.class);
     private String tag;
     private String user;
     private long chatId;
@@ -37,7 +37,7 @@ public class Test implements Serializable {
     private HashMap<Integer, String> USER_ANSWERS = new HashMap<>();
     private ArrayList<Integer> ORDER_QUESTIONS = new ArrayList<>();
 
-    public Test(TelegramBot bot, QuestionsLoader questionsLoader) {
+    public Task(TelegramBot bot, QuestionsLoader questionsLoader) {
         this.bot = bot;
         this.questionsLoader = questionsLoader;
         this.rightAnswersCount = 0;
@@ -53,13 +53,13 @@ public class Test implements Serializable {
         loadQuestions();
         initOrderQuestions();
         sendQuestion();
-        ActiveTests.activateTest(chatId, this);
-        ActiveTests.saveTest(chatId, this);
+        ActiveTasks.activateTask(chatId, this);
+        ActiveTasks.saveTask(chatId, this);
     }
 
     public void continueTest() {
         logger.info(String.format("ChatId=%d test %s continue", chatId, tag));
-        ActiveTests.activateTest(chatId, this);
+        ActiveTasks.activateTask(chatId, this);
         sendQuestion();
     }
 
@@ -106,7 +106,7 @@ public class Test implements Serializable {
         checkAnswer(ORDER_QUESTIONS.get(0), answer);
         ORDER_QUESTIONS.remove(0);
         USER_ANSWERS.put(numberOfQuestion, answer);
-        ActiveTests.serialize();
+        ActiveTasks.serialize();
 
         sendQuestion();
     }
@@ -116,7 +116,7 @@ public class Test implements Serializable {
         checkAnswer(ORDER_QUESTIONS.get(0), text);
         USER_ANSWERS.put(ORDER_QUESTIONS.get(0), text.trim().toLowerCase());
         ORDER_QUESTIONS.remove(0);
-        ActiveTests.serialize();
+        ActiveTasks.serialize();
 
         sendQuestion();
     }
@@ -152,8 +152,8 @@ public class Test implements Serializable {
         }
         resultMessageText.append(String.format("Правильных ответов: %d из %d", rightAnswersCount, questions.size()));
         USER_ANSWERS.clear();
-        ActiveTests.clear(chatId, tag);
-        ActiveTests.serialize();
+        ActiveTasks.clear(chatId, tag);
+        ActiveTasks.serialize();
         bot.sendMessage(chatId, resultMessageText.toString());
     }
 

@@ -2,8 +2,8 @@ package org.company.bot;
 
 import org.apache.log4j.Logger;
 import org.company.model.TestTags;
-import org.company.service.Test;
-import org.company.data.ActiveTests;
+import org.company.service.Task;
+import org.company.data.ActiveTasks;
 import org.company.service.UpdateRecognizer;
 import org.company.data.UsersData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,9 +77,9 @@ public class TelegramBot extends TelegramLongPollingBot {
             logger.debug(String.format("%s : ChatId=%s use callback %s", update.getCallbackQuery().getFrom().getUserName(), chatId, callBack));
 
             if (TestTags.isTag(callBack)) {
-                if (ActiveTests.getIncompleteTest(chatId, callBack) == null) {
-                    Test test = context.getBean(Test.class);
-                    test.start(chatId, callBack);
+                if (ActiveTasks.getIncompleteTask(chatId, callBack) == null) {
+                    Task task = context.getBean(Task.class);
+                    task.start(chatId, callBack);
                 } else {
                     sendContinueMessage(chatId, callBack);
                 }
