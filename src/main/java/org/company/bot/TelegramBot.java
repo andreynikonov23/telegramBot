@@ -1,7 +1,7 @@
 package org.company.bot;
 
 import org.apache.log4j.Logger;
-import org.company.model.TestTags;
+import org.company.model.TaskTags;
 import org.company.service.Task;
 import org.company.data.ActiveTasks;
 import org.company.service.UpdateRecognizer;
@@ -76,7 +76,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             String callBack = update.getCallbackQuery().getData();
             logger.debug(String.format("%s : ChatId=%s use callback %s", update.getCallbackQuery().getFrom().getUserName(), chatId, callBack));
 
-            if (TestTags.isTag(callBack)) {
+            if (TaskTags.isTag(callBack)) {
                 if (ActiveTasks.getIncompleteTask(chatId, callBack) == null) {
                     Task task = context.getBean(Task.class);
                     task.start(chatId, callBack);
@@ -117,15 +117,17 @@ public class TelegramBot extends TelegramLongPollingBot {
         List<InlineKeyboardButton> row7 = new ArrayList<>();
         List<InlineKeyboardButton> row8 = new ArrayList<>();
         List<InlineKeyboardButton> row9 = new ArrayList<>();
-        row1.add(new InlineKeyboardButton().builder().text("[chi] и [ci]").callbackData(TestTags.CHI_CI_TAG).build());
-        row2.add(new InlineKeyboardButton().builder().text("Заднеязычные финали").callbackData(TestTags.BACK_LANG_FINALS_TAG).build());
-        row3.add(new InlineKeyboardButton().builder().text("Инициали [j][q][x]").callbackData(TestTags.JQX_INITIALS_TAG).build());
-        row4.add(new InlineKeyboardButton().builder().text("Инициаль [r]").callbackData(TestTags.R_INITIAL_TAG).build());
-        row5.add(new InlineKeyboardButton().builder().text("Особая финаль [er]").callbackData(TestTags.SPECIAL_FINALS_TAG).build());
-        row6.add(new InlineKeyboardButton().builder().text("Придыхательные инициали").callbackData(TestTags.ASPIRATED_INITIALS_TAG).build());
-        row7.add(new InlineKeyboardButton().builder().text("Финаль [ian] и [iang]").callbackData(TestTags.IAN_IANG_TAG).build());
-        row8.add(new InlineKeyboardButton().builder().text("Финаль [e]").callbackData(TestTags.E_FINAL_TAG).build());
-        row9.add(new InlineKeyboardButton().builder().text("Финаль [Ü]").callbackData(TestTags.U_FINAL_TAG).build());
+        List<InlineKeyboardButton> row11 = new ArrayList<>();
+        row1.add(new InlineKeyboardButton().builder().text("[chi] и [ci]").callbackData(TaskTags.CHI_CI_TAG).build());
+        row2.add(new InlineKeyboardButton().builder().text("Заднеязычные финали").callbackData(TaskTags.BACK_LANG_FINALS_TAG).build());
+        row3.add(new InlineKeyboardButton().builder().text("Инициали [j][q][x]").callbackData(TaskTags.JQX_INITIALS_TAG).build());
+        row4.add(new InlineKeyboardButton().builder().text("Инициаль [r]").callbackData(TaskTags.R_INITIAL_TAG).build());
+        row5.add(new InlineKeyboardButton().builder().text("Особая финаль [er]").callbackData(TaskTags.SPECIAL_FINALS_TAG).build());
+        row6.add(new InlineKeyboardButton().builder().text("Придыхательные инициали").callbackData(TaskTags.ASPIRATED_INITIALS_TAG).build());
+        row7.add(new InlineKeyboardButton().builder().text("Финаль [ian] и [iang]").callbackData(TaskTags.IAN_IANG_TAG).build());
+        row8.add(new InlineKeyboardButton().builder().text("Финаль [e]").callbackData(TaskTags.E_FINAL_TAG).build());
+        row9.add(new InlineKeyboardButton().builder().text("Финаль [Ü]").callbackData(TaskTags.U_FINAL_TAG).build());
+        row11.add(new InlineKeyboardButton().builder().text("Рандомные темы").callbackData(TaskTags.UNIT).build());
 
         keyboard.add(row1);
         keyboard.add(row2);
@@ -136,6 +138,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         keyboard.add(row7);
         keyboard.add(row8);
         keyboard.add(row9);
+        keyboard.add(row11);
         markup.setKeyboard(keyboard);
 
         SendMessage sendMessage = new SendMessage();

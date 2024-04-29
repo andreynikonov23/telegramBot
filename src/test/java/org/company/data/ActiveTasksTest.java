@@ -1,22 +1,28 @@
 package org.company.data;
 
 
-import org.junit.jupiter.api.Test;
+import org.company.service.Task;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.util.logging.Logger;
 
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(ActiveTasks.class)
+@RunWith(SpringRunner.class)
 public class ActiveTasksTest {
+    private final MockedStatic<Logger> loggerMockedStatic = Mockito.mockStatic(Logger.class);
+
 
     @Test
-    public void serializeDeserializeTest() throws FileNotFoundException {
-        FileOutputStream stream = Mockito.spy(new FileOutputStream("C:\\telegramBotConf\\file.dat"));
+    public void saveDataTest(){
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+        Task testTask = context.getBean(Task.class);
+        long testChatId = 1111;
+
+        MockedStatic<ActiveTasks> activeTasksMockedStatic = Mockito.mockStatic(ActiveTasks.class);
+
     }
 }

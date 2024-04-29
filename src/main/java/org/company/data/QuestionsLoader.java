@@ -7,11 +7,13 @@ import lombok.NoArgsConstructor;
 import org.apache.log4j.Logger;
 import org.company.model.AnswerType;
 import org.company.model.Question;
+import org.company.model.TaskTags;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 @NoArgsConstructor
@@ -78,5 +80,30 @@ public class QuestionsLoader {
 
             questions.add(question);
         }
+    }
+    public List<Question> getRandomQuestionList(){
+        String[] tags = new String[5];
+
+        int i = 0;
+        for (String tag : TaskTags.getAllTags()){
+            if (tag.equals("unit")){
+                continue;
+            }
+            tags[i] = tag;
+            if (i == 4){
+                break;
+            } else {
+                i++;
+            }
+        }
+
+        List<Question> randomQuestionsList = new ArrayList<>();
+        for (int j = 0; j < tags.length; j++) {
+            List<Question> allQuestionsInTask = getQuestionList(tags[i]);
+
+            int randomIndex = (int) (Math.random() * (allQuestionsInTask.size() + 1));
+            randomQuestionsList.add(allQuestionsInTask.get(randomIndex));
+        }
+        return randomQuestionsList;
     }
 }
