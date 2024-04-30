@@ -13,7 +13,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 
 @NoArgsConstructor
@@ -36,22 +35,56 @@ public class QuestionsLoader {
         }
 
         try {
-            parseToQuestionList(strings, questions);
+            parseToQuestionList(strings, questions, tag);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
 
-        logger.debug("question for" + tag + "have been loaded");
+        logger.debug("question for " + tag + " have been loaded");
         return questions;
     }
 
-    private void parseToQuestionList(List<String[]> strings, List<Question> questions) throws IOException {
+    public List<Question> getRandomQuestionList() {
+        String[] tags = new String[5];
+
+        int i = 0;
+        for (String tag : TaskTags.getAllTags()) {
+            if (tag.equals("unit")) {
+                continue;
+            }
+            tags[i] = tag;
+            if (i == 4) {
+                break;
+            } else {
+                i++;
+            }
+        }
+
+        List<Question> randomQuestionsList = new ArrayList<>();
+        for (int j = 0; j < tags.length; j++) {
+            List<Question> allQuestionsInTask = getQuestionList(tags[j]);
+            List<Integer> nonRepeatingIndexes = new ArrayList<>();
+            for (int k = 0; k < 3; k++) {
+                int randomIndex = (int) (Math.random() * (allQuestionsInTask.size()));
+                if (nonRepeatingIndexes.contains(randomIndex)){
+                    k--;
+                } else {
+                    nonRepeatingIndexes.add(randomIndex);
+                    randomQuestionsList.add(allQuestionsInTask.get(randomIndex));
+                }
+            }
+        }
+        return randomQuestionsList;
+    }
+
+    private void parseToQuestionList(List<String[]> strings, List<Question> questions, String tag) throws IOException {
         for (String[] arr : strings) {
             for (int i = 0; i < arr.length; i++) {
                 arr[i] = new String(arr[i].getBytes(), StandardCharsets.UTF_8);
             }
             Question question = new Question();
+            question.setTag(tag);
             question.setQuestionTxt(arr[0]);
             question.setAnswerA(arr[1]);
             question.setAnswerB(arr[2]);
@@ -80,30 +113,5 @@ public class QuestionsLoader {
 
             questions.add(question);
         }
-    }
-    public List<Question> getRandomQuestionList(){
-        String[] tags = new String[5];
-
-        int i = 0;
-        for (String tag : TaskTags.getAllTags()){
-            if (tag.equals("unit")){
-                continue;
-            }
-            tags[i] = tag;
-            if (i == 4){
-                break;
-            } else {
-                i++;
-            }
-        }
-
-        List<Question> randomQuestionsList = new ArrayList<>();
-        for (int j = 0; j < tags.length; j++) {
-            List<Question> allQuestionsInTask = getQuestionList(tags[i]);
-
-            int randomIndex = (int) (Math.random() * (allQuestionsInTask.size() + 1));
-            randomQuestionsList.add(allQuestionsInTask.get(randomIndex));
-        }
-        return randomQuestionsList;
     }
 }

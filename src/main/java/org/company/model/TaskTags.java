@@ -22,7 +22,8 @@ public class TaskTags {
             SPECIAL_FINALS_TAG,
             IAN_IANG_TAG,
             E_FINAL_TAG,
-            U_FINAL_TAG));
+            U_FINAL_TAG,
+            UNIT));
 
 
     public static boolean isTag(String tag) {

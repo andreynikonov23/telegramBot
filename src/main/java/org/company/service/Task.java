@@ -7,6 +7,7 @@ import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.company.data.ActiveTasks;
 import org.company.data.QuestionsLoader;
+import org.company.model.TaskTags;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -194,7 +195,11 @@ public class Task implements Serializable {
 
 
     private void loadQuestions() {
-        questions = questionsLoader.getQuestionList(tag);
+        if (this.tag.equals(TaskTags.UNIT)){
+            questions = questionsLoader.getRandomQuestionList();
+        } else {
+            questions = questionsLoader.getQuestionList(tag);
+        }
     }
 
     private void sendChoiceQuestion(Question question, int num) {
@@ -252,7 +257,7 @@ public class Task implements Serializable {
             }
             SendVoice voice = new SendVoice();
             voice.setChatId(chatId);
-            voice.setVoice(new InputFile(new BufferedInputStream(getClass().getResourceAsStream("/media/" + tag + "/" + file)), file));
+            voice.setVoice(new InputFile(new BufferedInputStream(getClass().getResourceAsStream("/media/" + question.getTag() + "/" + file)), file));
             try {
                 bot.execute(voice);
             } catch (TelegramApiException e) {

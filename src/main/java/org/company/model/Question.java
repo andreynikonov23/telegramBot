@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class Question implements Serializable {
+    private String tag;
     private String questionTxt;
     private String answerA;
     private String answerB;
@@ -27,6 +28,6 @@ public class Question implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("[%s, %s, %s, %s, %s, %s, %s]", questionTxt, answerA, answerB, answerC, answerD, answerE, rightAnswer);
+        return String.format("[%s, %s, %s, %s, %s, %s, %s, %s]", questionTxt, answerA, answerB, answerC, answerD, answerE, rightAnswer, tag);
     }
 }
