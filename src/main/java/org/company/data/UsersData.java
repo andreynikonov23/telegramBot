@@ -4,6 +4,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
 import org.apache.log4j.Logger;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -67,8 +68,12 @@ public class UsersData {
         }
     }
 
-    public boolean addIfItIsNewUser(String username) {
+    public boolean addIfItIsNewUser(Chat chat) {
         boolean isTrue = false;
+        String username = "";
+        if (chat.getUserName() == null){
+            username = String.valueOf(chat.getId());
+        }
         if (!(USERS.contains(username))) {
             isTrue = true;
             setNewUser(username);

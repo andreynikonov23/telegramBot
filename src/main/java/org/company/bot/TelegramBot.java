@@ -53,7 +53,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             switch (message.getText()) {
                 case ("/start") -> {
                     logger.debug(String.format("%s : ChatId=%s use /start", message.getChat().getUserName(), message.getChatId()));
-                    usersData.addIfItIsNewUser(message.getChat().getUserName());
+                    usersData.addIfItIsNewUser(message.getChat());
                     sendMainMenuMessage(update);
                 }
                 case ("/help") -> {
