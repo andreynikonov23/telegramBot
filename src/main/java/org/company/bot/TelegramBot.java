@@ -127,7 +127,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         row7.add(new InlineKeyboardButton().builder().text("Финаль [ian] и [iang]").callbackData(TaskTags.IAN_IANG_TAG).build());
         row8.add(new InlineKeyboardButton().builder().text("Финаль [e]").callbackData(TaskTags.E_FINAL_TAG).build());
         row9.add(new InlineKeyboardButton().builder().text("Финаль [Ü]").callbackData(TaskTags.U_FINAL_TAG).build());
-        row11.add(new InlineKeyboardButton().builder().text("Рандомные темы").callbackData(TaskTags.UNIT).build());
+        row11.add(new InlineKeyboardButton().builder().text("Общий тест").callbackData(TaskTags.UNIT).build());
 
         keyboard.add(row1);
         keyboard.add(row2);
