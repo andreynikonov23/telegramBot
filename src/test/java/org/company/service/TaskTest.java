@@ -1,10 +1,7 @@
 package org.company.service;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggerFactory;
-import org.apache.log4j.spi.LoggingEvent;
 import org.company.bot.TelegramBot;
+import org.company.config.SpringConfig;
 import org.company.data.QuestionsLoader;
 import org.company.model.AnswerType;
 import org.company.model.Question;
@@ -13,31 +10,33 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskTest {
     @Mock
-    private Appender appenderMock;
-    @Mock
     private TelegramBot botMock;
     @Mock
     private QuestionsLoader questionsLoaderMock;
+    @Mock
+    private List<Question> questionsListMock;
     private Task task;
 
     @BeforeEach
@@ -66,10 +65,8 @@ public class TaskTest {
 
     @Test
     public void initOrderQuestionsTest() {
-        List<Question> questionListMock = Mockito.mock(ArrayList.class);
-
-        task.setQuestions(questionListMock);
-        Mockito.doReturn(5).when(questionListMock).size();
+        task.setQuestions(questionsListMock);
+        Mockito.doReturn(5).when(questionsListMock).size();
         List<Integer> orderQuestionTest = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             orderQuestionTest.add(i);
@@ -86,16 +83,68 @@ public class TaskTest {
     public void sendQuestionTest() throws TelegramApiException {
         ArrayList<Integer> orderQuestions = new ArrayList<>();
         orderQuestions.add(0);
-        List<Question> questionListMock = Mockito.mock(ArrayList.class);
 
         Question question = new Question("chi-ci", "questionTxt", "answerA", "answerB", "answerC", "", "", "rightAnswer", new ArrayList<>(), AnswerType.CHOICE);
-        Mockito.doReturn(question).when(questionListMock).get(Mockito.anyInt());
+        Mockito.doReturn(question).when(questionsListMock).get(Mockito.anyInt());
 
         task.setORDER_QUESTIONS(orderQuestions);
-        task.setQuestions(questionListMock);
+        task.setQuestions(questionsListMock);
         task.sendQuestion();
 
         Mockito.verify(botMock).execute(Mockito.any(SendMessage.class));
     }
 
+    @Test
+    public void sendQuestionWithAudio() throws TelegramApiException {
+        ArrayList<Integer> orderQuestions = new ArrayList<>();
+        orderQuestions.add(0);
+
+        List<String> mediaFiles = new ArrayList<>();
+        mediaFiles.add("запись 1.mp3");
+        Question question = new Question("chi-ci", "questionTxt", "answerA", "answerB", "answerC", "", "", "rightAnswer", mediaFiles, AnswerType.CHOICE);
+        Mockito.doReturn(question).when(questionsListMock).get(Mockito.anyInt());
+
+        task.setORDER_QUESTIONS(orderQuestions);
+        task.setQuestions(questionsListMock);
+        task.sendQuestion();
+
+        Mockito.verify(botMock).execute(Mockito.any(SendMessage.class));
+        Mockito.verify(botMock).execute(Mockito.any(SendVoice.class));
+    }
+
+    @Test
+    public void sendAudioError() {
+        TelegramBot bot = new AnnotationConfigApplicationContext(SpringConfig.class).getBean(TelegramBot.class);
+        task.setBot(bot);
+        task.setChatId(getTestChatId());
+
+        ArrayList<Integer> orderQuestions = new ArrayList<>();
+        orderQuestions.add(0);
+
+        List<String> mediaFiles = new ArrayList<>();
+        mediaFiles.add("non-existent file");
+        Question question = new Question("chi-ci", "questionTxt", "answerA", "answerB", "answerC", "", "", "rightAnswer", mediaFiles, AnswerType.CHOICE);
+        Mockito.doReturn(question).when(questionsListMock).get(Mockito.anyInt());
+
+        task.setORDER_QUESTIONS(orderQuestions);
+        task.setQuestions(questionsListMock);
+
+        Assertions.assertThrows(RuntimeException.class, () -> task.sendQuestion());
+    }
+
+    @Test
+    public void sendResult() {
+
+    }
+
+    private int getTestChatId(){
+        Properties properties = new Properties();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/test.properties")))) {
+            properties.load(reader);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String chatIdStr = properties.getProperty("chat");
+        return Integer.parseInt(chatIdStr);
+    }
 }

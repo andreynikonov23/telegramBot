@@ -72,7 +72,7 @@ public class UsersData {
         boolean isTrue = false;
         String username = "";
         if (chat.getUserName() == null){
-            username = String.valueOf(chat.getId());
+            username = chat.getBio() + "_" + chat.getId();
         }
         if (!(USERS.contains(username))) {
             isTrue = true;
