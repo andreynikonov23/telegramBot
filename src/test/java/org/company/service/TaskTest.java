@@ -2,6 +2,7 @@ package org.company.service;
 
 import org.company.bot.TelegramBot;
 import org.company.config.SpringConfig;
+import org.company.data.ActiveTasks;
 import org.company.data.QuestionsLoader;
 import org.company.model.AnswerType;
 import org.company.model.Question;
@@ -12,22 +13,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskTest {
@@ -42,6 +39,7 @@ public class TaskTest {
     @BeforeEach
     public void init() {
         task = new Task(botMock, questionsLoaderMock);
+        task.setChatId(TaskTestData.getTestChatId());
     }
 
     @Test
@@ -133,13 +131,67 @@ public class TaskTest {
         Assertions.assertThrows(RuntimeException.class, () -> task.sendQuestion());
     }
 
+    //verify ActiveTasks
     @Test
     public void sendResult() {
-        List<Integer> orderQuestions = new ArrayList<>();
-        List<Question> questions = new ArrayList<>();
-        questions.add((Question) List.of(new Question("chi-ci", "QuestionTest1", "A", "B", "C", "D", "", "c", new ArrayList<>(), AnswerType.CHOICE)));
+        try (MockedStatic<ActiveTasks> activeTasksMock = Mockito.mockStatic(ActiveTasks.class);) {
+            ArrayList<Integer> orderQuestions = new ArrayList<>();
+            List<Question> questions = new ArrayList<>(List.of(new Question("chi-ci", "QuestionTest1", "A", "B", "C", "D", "", "c", new ArrayList<>(), AnswerType.CHOICE),
+                    new Question("chi-ci", "QuestionTest2", "A", "B", "C", "", "", "a", new ArrayList<>(), AnswerType.CHOICE),
+                    new Question("chi-ci", "QuestionTest3", "", "", "", "", "", "test", new ArrayList<>(), AnswerType.INPUT)));
+            HashMap<Integer, String> usersAnswers = new HashMap<>(Map.of(0, "b", 1, "a", 2, "test"));
 
-        task.setORDER_QUESTIONS(orderQuestions);
+            task.setORDER_QUESTIONS(orderQuestions);
+            task.setQuestions(questions);
+            task.setUSER_ANSWERS(usersAnswers);
+
+            task.sendQuestion();
+            Assertions.assertTrue(task.getUSER_ANSWERS().isEmpty());
+            Mockito.verify(botMock).sendMessage(TaskTestData.getTestChatId(), TaskTestData.getTestResultMessageTxt());
+        }
+    }
+
+    @Test
+    public void checkRightAnswerTest() {
+        List<Question> questions = new ArrayList<>();
+        questions.add(new Question("chi-ci", "QuestionTest2", "A", "B", "C", "", "", "a", new ArrayList<>(), AnswerType.CHOICE));
+
+        task.setQuestions(questions);
+        task.checkAnswer(0, "a");
+
+        Mockito.verify(botMock).sendMessage(TaskTestData.getTestChatId(), "Правильно");
+    }
+
+    @Test
+    public void checkNotAnswerTest() {
+        List<Question> questions = new ArrayList<>();
+        questions.add(new Question("chi-ci", "QuestionTest2", "A", "B", "C", "", "", "a", new ArrayList<>(), AnswerType.CHOICE));
+
+        task.setQuestions(questions);
+        task.checkAnswer(0, "b");
+
+        Mockito.verify(botMock).sendMessage(TaskTestData.getTestChatId(), "Неправильно!\nПравильный ответ: a");
+    }
+
+    @Test
+    public void setCallbackAnswerTest() throws TelegramApiException {
+        try(MockedStatic<ActiveTasks> activeTasksMock = Mockito.mockStatic(ActiveTasks.class)) {
+            List<Question> questions = new ArrayList<>(List.of(new Question("chi-ci", "QuestionTest1", "A", "B", "C", "D", "", "c", new ArrayList<>(), AnswerType.CHOICE),
+                    new Question("chi-ci", "QuestionTest2", "A", "B", "C", "", "", "a", new ArrayList<>(), AnswerType.CHOICE),
+                    new Question("chi-ci", "QuestionTest3", "", "", "", "", "", "test", new ArrayList<>(), AnswerType.INPUT)));
+            HashMap<Integer, String> usersAnswers = new HashMap<>(Map.of(0, "b", 1, "a", 2, "test"));
+
+            task.setTag(TaskTags.CHI_CI_TAG);
+            task.setQuestions(questions);
+            task.initOrderQuestions();
+            task.setQuestions(questions);
+            task.setUSER_ANSWERS(usersAnswers);
+
+            task.setCallbackAnswer(1, 1, "a");
+            Mockito.verify(botMock).execute(Mockito.any(EditMessageText.class));
+            Assertions.assertEquals(2, task.getORDER_QUESTIONS().size());
+            Assertions.assertEquals("a", task.getUSER_ANSWERS().get(1));
+        }
 
     }
 }

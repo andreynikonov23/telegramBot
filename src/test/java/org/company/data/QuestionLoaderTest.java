@@ -5,7 +5,6 @@ import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 

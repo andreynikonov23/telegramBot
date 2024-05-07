@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Properties;
 
 public class TaskTestData {
-    public static int getTestChatId() {
+    public static long getTestChatId() {
         Properties properties = new Properties();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(TaskTestData.class.getResourceAsStream("/test.properties")))) {
             properties.load(reader);
@@ -17,15 +17,15 @@ public class TaskTestData {
         return Integer.parseInt(chatIdStr);
     }
 
-    public static StringBuilder getTestResultMessageTxt() {
-        String resultTxt = "1. QuestionTest1:\n" +
+    public static String getTestResultMessageTxt() {
+        return "1. QuestionTest1:\n" +
                 "A\n" +
                 "B\n" +
                 "C\n" +
                 "D\n" +
                 "Вы ответили: b. Это не правильный ответ. Правильный ответ: c\n" +
                 "\n" +
-                "2. QuestionTest2 :\n" +
+                "2. QuestionTest2:\n" +
                 "A\n" +
                 "B\n" +
                 "C\n" +
@@ -35,6 +35,5 @@ public class TaskTestData {
                 "Вы ответили: test. Это правильно.\n" +
                 "\n" +
                 "Правильных ответов: 2 из 3";
-        return new StringBuilder(resultTxt);
     }
 }

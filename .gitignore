@@ -4,6 +4,7 @@ out/
 !**/src/main/**/target/
 !**/src/task/**/target/
 src/main/resources/data.properties
+src/test/resources/test.properties
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

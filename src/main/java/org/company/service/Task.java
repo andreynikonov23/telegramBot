@@ -34,14 +34,12 @@ public class Task implements Serializable {
     private transient TelegramBot bot;
     private transient QuestionsLoader questionsLoader;
     private List<Question> questions;
-    private int rightAnswersCount;
     private HashMap<Integer, String> USER_ANSWERS = new HashMap<>();
     private ArrayList<Integer> ORDER_QUESTIONS = new ArrayList<>();
 
     public Task(TelegramBot bot, QuestionsLoader questionsLoader) {
         this.bot = bot;
         this.questionsLoader = questionsLoader;
-        this.rightAnswersCount = 0;
     }
 
 
@@ -125,6 +123,7 @@ public class Task implements Serializable {
     public void sendResult() {
         logger.info(String.format("ChatId=%d test %s - send result test", chatId, tag));
         StringBuilder resultMessageText = new StringBuilder();
+        int rightAnswersCount = 0;
         for (int i = 0; i < questions.size(); i++) {
             Question question = questions.get(i);
             String questionAndAnswersTxt = String.format("%d. %s:\n", i + 1, question.getQuestionTxt());
@@ -147,6 +146,7 @@ public class Task implements Serializable {
             resultMessageText.append(String.format("Вы ответили: %s. ", USER_ANSWERS.get(i)));
             if (USER_ANSWERS.get(i).toLowerCase().replaceAll(" ", "").equals(question.getRightAnswer())) {
                 resultMessageText.append("Это правильно.\n\n");
+                rightAnswersCount++;
             } else {
                 resultMessageText.append(String.format("Это не правильный ответ. Правильный ответ: %s\n\n", question.getRightAnswer()));
             }
@@ -163,7 +163,6 @@ public class Task implements Serializable {
         String rightAnswer = questions.get(numberOfQuestion).getRightAnswer();
         if (rightAnswer.equals(answer.toLowerCase().replaceAll(" ", ""))) {
             logger.info("send \"is right\"");
-            rightAnswersCount++;
             bot.sendMessage(chatId, "Правильно");
         } else {
             logger.info("send \"isn't right\"");
