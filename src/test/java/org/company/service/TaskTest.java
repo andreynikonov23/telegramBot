@@ -6,6 +6,7 @@ import org.company.data.QuestionsLoader;
 import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.company.model.TaskTags;
+import org.company.service.test_data.TaskTestData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
@@ -40,9 +40,10 @@ public class TaskTest {
     private Task task;
 
     @BeforeEach
-    public void init(){
+    public void init() {
         task = new Task(botMock, questionsLoaderMock);
     }
+
     @Test
     public void loadQuestionsTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         task.setTag(TaskTags.IAN_IANG_TAG);
@@ -116,7 +117,7 @@ public class TaskTest {
     public void sendAudioError() {
         TelegramBot bot = new AnnotationConfigApplicationContext(SpringConfig.class).getBean(TelegramBot.class);
         task.setBot(bot);
-        task.setChatId(getTestChatId());
+        task.setChatId(TaskTestData.getTestChatId());
 
         ArrayList<Integer> orderQuestions = new ArrayList<>();
         orderQuestions.add(0);
@@ -134,17 +135,11 @@ public class TaskTest {
 
     @Test
     public void sendResult() {
+        List<Integer> orderQuestions = new ArrayList<>();
+        List<Question> questions = new ArrayList<>();
+        questions.add((Question) List.of(new Question("chi-ci", "QuestionTest1", "A", "B", "C", "D", "", "c", new ArrayList<>(), AnswerType.CHOICE)));
 
-    }
+        task.setORDER_QUESTIONS(orderQuestions);
 
-    private int getTestChatId(){
-        Properties properties = new Properties();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/test.properties")))) {
-            properties.load(reader);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        String chatIdStr = properties.getProperty("chat");
-        return Integer.parseInt(chatIdStr);
     }
 }
