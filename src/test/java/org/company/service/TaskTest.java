@@ -45,9 +45,16 @@ public class TaskTest {
 
     @Test
     public void startTest() {
-        task.start(TaskTestData.getTestChatId(), TaskTags.CHI_CI_TAG);
+        task.setQuestionsLoader(new QuestionsLoader());
+        task.start(TaskTestData.getTestChatId(), TaskTags.IAN_IANG_TAG);
 
-        Mockito.verify(questionsLoaderMock).getQuestionList(TaskTags.CHI_CI_TAG);
+        Question testQuestion = new Question(TaskTags.IAN_IANG_TAG, "Отличается ли произношение гласных звуков в финалях [ian] и [iang]? ", "A. Нет, гласные звуки похожи на русский [e]", "B. Нет, гласные звуки похожи на русский [я] ", "C. В звуке [ian] – [e], в [iang] – [я]", "D. В звуке [ian] – [я], в [iang] – [е]", "", "c", new ArrayList<>(), AnswerType.CHOICE);
+
+        try(MockedStatic<ActiveTasks> activeTasksMockedStatic = Mockito.mockStatic(ActiveTasks.class)){
+            Assertions.assertEquals(testQuestion, task.getQuestions().get(0));
+            Assertions.assertEquals(5, task.getORDER_QUESTIONS().size());
+            activeTasksMockedStatic.when(() -> ActiveTasks.activateTask())
+        }
     }
 
     @Test

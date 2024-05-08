@@ -20,7 +20,6 @@ public class QuestionsLoader {
     private static final Logger logger = Logger.getLogger(QuestionsLoader.class);
 
 
-    //Тест
     public List<Question> getQuestionList(String tag) {
         String questionDir = "/media/" + tag + "/";
         logger.debug(questionDir + "tasks.csv reading");
