@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationContext;
 
 public class UpdateRecognizer {
     private static final Logger logger = Logger.getLogger(UpdateRecognizer.class);
-    private TelegramBot bot;
+    private final TelegramBot bot;
     @Autowired
     private ApplicationContext context;
 

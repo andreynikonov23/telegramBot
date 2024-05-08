@@ -1,5 +1,6 @@
 package org.company.service;
 
+import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.company.bot.TelegramBot;
 import org.company.config.SpringConfig;
 import org.company.data.ActiveTasks;
@@ -40,6 +41,13 @@ public class TaskTest {
     public void init() {
         task = new Task(botMock, questionsLoaderMock);
         task.setChatId(TaskTestData.getTestChatId());
+    }
+
+    @Test
+    public void startTest() {
+        task.start(TaskTestData.getTestChatId(), TaskTags.CHI_CI_TAG);
+
+        Mockito.verify(questionsLoaderMock).getQuestionList(TaskTags.CHI_CI_TAG);
     }
 
     @Test
@@ -147,6 +155,7 @@ public class TaskTest {
 
             task.sendQuestion();
             Assertions.assertTrue(task.getUSER_ANSWERS().isEmpty());
+            activeTasksMock.verify(ActiveTasks::serialize);
             Mockito.verify(botMock).sendMessage(TaskTestData.getTestChatId(), TaskTestData.getTestResultMessageTxt());
         }
     }
@@ -179,19 +188,35 @@ public class TaskTest {
             List<Question> questions = new ArrayList<>(List.of(new Question("chi-ci", "QuestionTest1", "A", "B", "C", "D", "", "c", new ArrayList<>(), AnswerType.CHOICE),
                     new Question("chi-ci", "QuestionTest2", "A", "B", "C", "", "", "a", new ArrayList<>(), AnswerType.CHOICE),
                     new Question("chi-ci", "QuestionTest3", "", "", "", "", "", "test", new ArrayList<>(), AnswerType.INPUT)));
-            HashMap<Integer, String> usersAnswers = new HashMap<>(Map.of(0, "b", 1, "a", 2, "test"));
 
             task.setTag(TaskTags.CHI_CI_TAG);
             task.setQuestions(questions);
             task.initOrderQuestions();
             task.setQuestions(questions);
-            task.setUSER_ANSWERS(usersAnswers);
 
             task.setCallbackAnswer(1, 1, "a");
             Mockito.verify(botMock).execute(Mockito.any(EditMessageText.class));
             Assertions.assertEquals(2, task.getORDER_QUESTIONS().size());
             Assertions.assertEquals("a", task.getUSER_ANSWERS().get(1));
+            activeTasksMock.verify(ActiveTasks::serialize);
         }
+    }
 
+    @Test
+    public void setTextAnswer() {
+        try(MockedStatic<ActiveTasks> activeTasksMockedStatic = Mockito.mockStatic(ActiveTasks.class)) {
+            List<Question> questions = new ArrayList<>(List.of(new Question("chi-ci", "QuestionTest1", "A", "B", "C", "D", "", "c", new ArrayList<>(), AnswerType.CHOICE),
+                    new Question("chi-ci", "QuestionTest2", "A", "B", "C", "", "", "a", new ArrayList<>(), AnswerType.CHOICE),
+                    new Question("chi-ci", "QuestionTest3", "", "", "", "", "", "test", new ArrayList<>(), AnswerType.INPUT)));
+            ArrayList<Integer> orderQuestions = new ArrayList<>(List.of(2, 1, 0));
+
+            task.setTag(TaskTags.CHI_CI_TAG);
+            task.setQuestions(questions);
+            task.setORDER_QUESTIONS(orderQuestions);
+            task.setTextAnswer("test");
+            Assertions.assertEquals("test", task.getUSER_ANSWERS().get(2));
+            Assertions.assertEquals(2, task.getORDER_QUESTIONS().size());
+            activeTasksMockedStatic.verify(ActiveTasks::serialize);
+        }
     }
 }
