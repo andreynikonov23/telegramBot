@@ -11,10 +11,13 @@ import org.springframework.context.ApplicationContext;
 public class UpdateRecognizer {
     private static final Logger logger = Logger.getLogger(UpdateRecognizer.class);
     private final TelegramBot bot;
-    @Autowired
     private ApplicationContext context;
 
-
+    @Autowired
+    public UpdateRecognizer(TelegramBot bot, ApplicationContext context) {
+        this.bot = bot;
+        this.context = context;
+    }
     public UpdateRecognizer(TelegramBot bot) {
         this.bot = bot;
     }

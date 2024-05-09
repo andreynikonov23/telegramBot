@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
-public class TaskTestData {
+public class TestData {
     public static long getTestChatId() {
         Properties properties = new Properties();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(TaskTestData.class.getResourceAsStream("/test.properties")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(TestData.class.getResourceAsStream("/test.properties")))) {
             properties.load(reader);
         } catch (IOException e) {
             throw new RuntimeException(e);

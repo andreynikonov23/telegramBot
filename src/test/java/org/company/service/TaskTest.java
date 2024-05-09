@@ -1,6 +1,6 @@
 package org.company.service;
 
-import org.apache.commons.beanutils.PropertyUtilsBean;
+
 import org.company.bot.TelegramBot;
 import org.company.config.SpringConfig;
 import org.company.data.ActiveTasks;
@@ -8,10 +8,8 @@ import org.company.data.QuestionsLoader;
 import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.company.model.TaskTags;
-import org.company.service.test_data.TaskTestData;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.company.service.test_data.TestData;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -40,20 +38,29 @@ public class TaskTest {
     @BeforeEach
     public void init() {
         task = new Task(botMock, questionsLoaderMock);
-        task.setChatId(TaskTestData.getTestChatId());
+        task.setChatId(TestData.getTestChatId());
     }
 
     @Test
     public void startTest() {
         task.setQuestionsLoader(new QuestionsLoader());
-        task.start(TaskTestData.getTestChatId(), TaskTags.IAN_IANG_TAG);
-
         Question testQuestion = new Question(TaskTags.IAN_IANG_TAG, "Отличается ли произношение гласных звуков в финалях [ian] и [iang]? ", "A. Нет, гласные звуки похожи на русский [e]", "B. Нет, гласные звуки похожи на русский [я] ", "C. В звуке [ian] – [e], в [iang] – [я]", "D. В звуке [ian] – [я], в [iang] – [е]", "", "c", new ArrayList<>(), AnswerType.CHOICE);
 
-        try(MockedStatic<ActiveTasks> activeTasksMockedStatic = Mockito.mockStatic(ActiveTasks.class)){
+        try(MockedStatic<ActiveTasks> mockedStatic = Mockito.mockStatic(ActiveTasks.class)){
+            task.start(TestData.getTestChatId(), TaskTags.IAN_IANG_TAG);
             Assertions.assertEquals(testQuestion, task.getQuestions().get(0));
             Assertions.assertEquals(5, task.getORDER_QUESTIONS().size());
-            activeTasksMockedStatic.when(() -> ActiveTasks.activateTask())
+            mockedStatic.verify(() -> ActiveTasks.activateTask(TestData.getTestChatId(), task));
+            mockedStatic.verify(() -> ActiveTasks.saveTask(TestData.getTestChatId(), task));
+        }
+    }
+
+    @Test
+    public void continueTaskTest() {
+        try(MockedStatic<ActiveTasks> mockedStatic = Mockito.mockStatic(ActiveTasks.class)) {
+            task.setQuestions(questionsListMock);
+            task.continueTest();
+            mockedStatic.verify(() -> ActiveTasks.activateTask(TestData.getTestChatId(), task));
         }
     }
 
@@ -130,7 +137,7 @@ public class TaskTest {
     public void sendAudioError() {
         TelegramBot bot = new AnnotationConfigApplicationContext(SpringConfig.class).getBean(TelegramBot.class);
         task.setBot(bot);
-        task.setChatId(TaskTestData.getTestChatId());
+        task.setChatId(TestData.getTestChatId());
 
         ArrayList<Integer> orderQuestions = new ArrayList<>();
         orderQuestions.add(0);
@@ -146,7 +153,6 @@ public class TaskTest {
         Assertions.assertThrows(RuntimeException.class, () -> task.sendQuestion());
     }
 
-    //verify ActiveTasks
     @Test
     public void sendResult() {
         try (MockedStatic<ActiveTasks> activeTasksMock = Mockito.mockStatic(ActiveTasks.class);) {
@@ -156,14 +162,16 @@ public class TaskTest {
                     new Question("chi-ci", "QuestionTest3", "", "", "", "", "", "test", new ArrayList<>(), AnswerType.INPUT)));
             HashMap<Integer, String> usersAnswers = new HashMap<>(Map.of(0, "b", 1, "a", 2, "test"));
 
+            task.setTag(TaskTags.CHI_CI_TAG);
             task.setORDER_QUESTIONS(orderQuestions);
             task.setQuestions(questions);
             task.setUSER_ANSWERS(usersAnswers);
 
             task.sendQuestion();
             Assertions.assertTrue(task.getUSER_ANSWERS().isEmpty());
+            activeTasksMock.verify(() -> ActiveTasks.clear(TestData.getTestChatId(), TaskTags.CHI_CI_TAG));
             activeTasksMock.verify(ActiveTasks::serialize);
-            Mockito.verify(botMock).sendMessage(TaskTestData.getTestChatId(), TaskTestData.getTestResultMessageTxt());
+            Mockito.verify(botMock).sendMessage(TestData.getTestChatId(), TestData.getTestResultMessageTxt());
         }
     }
 
@@ -175,7 +183,7 @@ public class TaskTest {
         task.setQuestions(questions);
         task.checkAnswer(0, "a");
 
-        Mockito.verify(botMock).sendMessage(TaskTestData.getTestChatId(), "Правильно");
+        Mockito.verify(botMock).sendMessage(TestData.getTestChatId(), "Правильно");
     }
 
     @Test
@@ -186,44 +194,45 @@ public class TaskTest {
         task.setQuestions(questions);
         task.checkAnswer(0, "b");
 
-        Mockito.verify(botMock).sendMessage(TaskTestData.getTestChatId(), "Неправильно!\nПравильный ответ: a");
+        Mockito.verify(botMock).sendMessage(TestData.getTestChatId(), "Неправильно!\nПравильный ответ: a");
     }
 
     @Test
     public void setCallbackAnswerTest() throws TelegramApiException {
-        try(MockedStatic<ActiveTasks> activeTasksMock = Mockito.mockStatic(ActiveTasks.class)) {
-            List<Question> questions = new ArrayList<>(List.of(new Question("chi-ci", "QuestionTest1", "A", "B", "C", "D", "", "c", new ArrayList<>(), AnswerType.CHOICE),
-                    new Question("chi-ci", "QuestionTest2", "A", "B", "C", "", "", "a", new ArrayList<>(), AnswerType.CHOICE),
-                    new Question("chi-ci", "QuestionTest3", "", "", "", "", "", "test", new ArrayList<>(), AnswerType.INPUT)));
+        List<Question> questions = new ArrayList<>(List.of(new Question("chi-ci", "QuestionTest1", "A", "B", "C", "D", "", "c", new ArrayList<>(), AnswerType.CHOICE),
+                new Question("chi-ci", "QuestionTest2", "A", "B", "C", "", "", "a", new ArrayList<>(), AnswerType.CHOICE),
+                new Question("chi-ci", "QuestionTest3", "", "", "", "", "", "test", new ArrayList<>(), AnswerType.INPUT)));
 
-            task.setTag(TaskTags.CHI_CI_TAG);
-            task.setQuestions(questions);
-            task.initOrderQuestions();
-            task.setQuestions(questions);
+        task.setTag(TaskTags.CHI_CI_TAG);
+        task.setQuestions(questions);
+        task.initOrderQuestions();
+        task.setQuestions(questions);
 
+        try(MockedStatic<ActiveTasks> mockedStatic = Mockito.mockStatic(ActiveTasks.class)){
             task.setCallbackAnswer(1, 1, "a");
             Mockito.verify(botMock).execute(Mockito.any(EditMessageText.class));
             Assertions.assertEquals(2, task.getORDER_QUESTIONS().size());
             Assertions.assertEquals("a", task.getUSER_ANSWERS().get(1));
-            activeTasksMock.verify(ActiveTasks::serialize);
+            mockedStatic.verify(ActiveTasks::serialize);
         }
     }
 
     @Test
     public void setTextAnswer() {
-        try(MockedStatic<ActiveTasks> activeTasksMockedStatic = Mockito.mockStatic(ActiveTasks.class)) {
-            List<Question> questions = new ArrayList<>(List.of(new Question("chi-ci", "QuestionTest1", "A", "B", "C", "D", "", "c", new ArrayList<>(), AnswerType.CHOICE),
-                    new Question("chi-ci", "QuestionTest2", "A", "B", "C", "", "", "a", new ArrayList<>(), AnswerType.CHOICE),
-                    new Question("chi-ci", "QuestionTest3", "", "", "", "", "", "test", new ArrayList<>(), AnswerType.INPUT)));
-            ArrayList<Integer> orderQuestions = new ArrayList<>(List.of(2, 1, 0));
+        List<Question> questions = new ArrayList<>(List.of(new Question("chi-ci", "QuestionTest1", "A", "B", "C", "D", "", "c", new ArrayList<>(), AnswerType.CHOICE),
+                new Question("chi-ci", "QuestionTest2", "A", "B", "C", "", "", "a", new ArrayList<>(), AnswerType.CHOICE),
+                new Question("chi-ci", "QuestionTest3", "", "", "", "", "", "test", new ArrayList<>(), AnswerType.INPUT)));
+        ArrayList<Integer> orderQuestions = new ArrayList<>(List.of(2, 1, 0));
 
-            task.setTag(TaskTags.CHI_CI_TAG);
-            task.setQuestions(questions);
-            task.setORDER_QUESTIONS(orderQuestions);
+        task.setTag(TaskTags.CHI_CI_TAG);
+        task.setQuestions(questions);
+        task.setORDER_QUESTIONS(orderQuestions);
+
+        try(MockedStatic<ActiveTasks> mockedStatic = Mockito.mockStatic(ActiveTasks.class)) {
             task.setTextAnswer("test");
             Assertions.assertEquals("test", task.getUSER_ANSWERS().get(2));
             Assertions.assertEquals(2, task.getORDER_QUESTIONS().size());
-            activeTasksMockedStatic.verify(ActiveTasks::serialize);
+            mockedStatic.verify(ActiveTasks::serialize);
         }
     }
 }
