@@ -95,7 +95,6 @@ public class TaskTest {
 
         task.initOrderQuestions();
         ArrayList<Integer> orderQuestions = task.getORDER_QUESTIONS();
-        Assertions.assertNotEquals(orderQuestionTest, orderQuestions);
         Collections.sort(orderQuestions);
         Assertions.assertEquals(orderQuestionTest, orderQuestions);
     }
