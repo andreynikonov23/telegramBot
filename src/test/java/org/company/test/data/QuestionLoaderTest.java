@@ -1,16 +1,15 @@
-package org.company.data;
+package org.company.test.data;
 
 import org.company.config.SpringConfig;
+import org.company.data.QuestionsLoader;
 import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class QuestionLoaderTest {
     @Test

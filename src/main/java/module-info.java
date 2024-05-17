@@ -1,17 +1,26 @@
-open module org.company {
-    requires javafx.controls;
-    requires javafx.fxml;
-    requires log4j;
-    requires spring.beans;
-    requires spring.context;
-    requires spring.aop;
-    requires spring.core;
-    requires spring.jcl;
-    requires spring.expression;
-    requires telegrambots.meta;
-    requires telegrambots;
-    requires com.opencsv;
-    requires lombok;
+module org.company {
+    requires  javafx.controls;
+    requires  javafx.fxml;
+    requires  log4j;
+    requires  spring.beans;
+    requires  spring.context;
+    requires  spring.core;
+    requires  spring.expression;
+    requires  telegrambots.meta;
+    requires  telegrambots;
+    requires  com.opencsv;
+    requires  lombok;
 
+
+    opens org.company.controller to javafx.fxml;
+    opens org.company.config to spring.core;
+    opens org.company.bot to spring.core;
+    opens org.company.service to org.company.test;
     exports org.company;
+    exports org.company.controller to javafx.fxml;
+    exports org.company.bot to spring.core, spring.beans, spring.context, org.company.test;
+    exports org.company.config to spring.core, spring.beans, spring.context, org.company.test;
+    exports org.company.service to spring.core, spring.beans, spring.context, org.company.test;
+    exports org.company.data to spring.core, spring.beans, spring.context, org.company.test;
+    exports org.company.model;
 }

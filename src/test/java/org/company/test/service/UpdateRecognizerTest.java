@@ -1,10 +1,12 @@
-package org.company.service;
+package org.company.test.service;
 
 import org.company.bot.TelegramBot;
 import org.company.data.ActiveTasks;
 import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.company.model.TaskTags;
+import org.company.service.Task;
+import org.company.service.UpdateRecognizer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

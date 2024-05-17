@@ -1,4 +1,4 @@
-package org.company.service;
+package org.company.test.service;
 
 
 import org.company.bot.TelegramBot;
@@ -8,7 +8,8 @@ import org.company.data.QuestionsLoader;
 import org.company.model.AnswerType;
 import org.company.model.Question;
 import org.company.model.TaskTags;
-import org.company.service.test_data.TestData;
+import org.company.service.Task;
+import org.company.test.service.test_data.TestData;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;

@@ -1,4 +1,4 @@
-package org.company.service.test_data;
+package org.company.test.service.test_data;
 
 import java.io.BufferedReader;
 import java.io.IOException;
