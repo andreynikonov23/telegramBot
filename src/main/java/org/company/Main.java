@@ -1,9 +1,5 @@
 package org.company;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.company.config.SpringConfig;
 import org.company.data.ActiveTasks;

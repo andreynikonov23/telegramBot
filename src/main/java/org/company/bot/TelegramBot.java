@@ -76,6 +76,15 @@ public class TelegramBot extends TelegramLongPollingBot {
             String callBack = update.getCallbackQuery().getData();
             logger.debug(String.format("%s : ChatId=%s use callback %s", update.getCallbackQuery().getFrom().getUserName(), chatId, callBack));
 
+            if (callBack.equals("sounds")) {
+                sendSoundTasksMessage(update);
+            }
+            if (callBack.equals("tones")) {
+                sendTonesTasksMessage(update);
+            }
+            if (callBack.equals("plug")) {
+                //the plug is caught
+            }
             if (TaskTags.isTag(callBack)) {
                 if (ActiveTasks.getIncompleteTask(chatId, callBack) == null) {
                     Task task = context.getBean(Task.class);
@@ -105,6 +114,32 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     public void sendMainMenuMessage(Update update) {
         String text = "Добро пожаловать в фонетический тренажер основ китайского.\nВыберете раздел который хотите потренировать.\n/help - помощь.";
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        row1.add(new InlineKeyboardButton().builder().text("Звуки").callbackData("sounds").build());
+        row2.add(new InlineKeyboardButton().builder().text("Тона").callbackData("tones").build());
+
+        keyboard.add(row1);
+        keyboard.add(row2);
+        markup.setKeyboard(keyboard);
+
+        SendMessage message = new SendMessage();
+        message.setChatId(update.getMessage().getChatId());
+        message.setText(text);
+        message.setReplyMarkup(markup);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            logger.error(String.format("%s : ChatId=%s TelegramApiException in sendMainMenuMessage()", update.getMessage().getChat().getUserName(), update.getMessage().getChatId()));
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void sendSoundTasksMessage(Update update) {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
@@ -142,15 +177,46 @@ public class TelegramBot extends TelegramLongPollingBot {
         markup.setKeyboard(keyboard);
 
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(update.getMessage().getChatId());
-        sendMessage.setText(text);
+        sendMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
+        sendMessage.setText("Выберете тему.");
         sendMessage.setReplyMarkup(markup);
 
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
-            logger.error(String.format("%s : ChatId=%s TelegramApiException in sendMainMenuMessage()", update.getMessage().getChat().getUserName(), update.getMessage().getChatId()));
+            logger.error(String.format("%s : ChatId=%s TelegramApiException in sendSoundsTasksMessage()", update.getCallbackQuery().getFrom().getUserName(), update.getCallbackQuery().getMessage().getChatId()));
             e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    //in development
+    public void sendTonesTasksMessage(Update update) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        List<InlineKeyboardButton> row3 = new ArrayList<>();
+        //adding callbacks
+        row1.add(new InlineKeyboardButton().builder().text("Легкий тон").callbackData("plug").build());
+        row2.add(new InlineKeyboardButton().builder().text("Легкий тон + 1-4 тоны").callbackData("plug").build());
+        row3.add(new InlineKeyboardButton().builder().text("Модуляция тонов").callbackData("plug").build());
+
+        keyboard.add(row1);
+        keyboard.add(row2);
+        keyboard.add(row3);
+        markup.setKeyboard(keyboard);
+
+        SendMessage message = new SendMessage();
+        message.setChatId(update.getCallbackQuery().getMessage().getChatId());
+        message.setText("Выберете тему.");
+        message.setReplyMarkup(markup);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            logger.error(String.format("%s : ChatId=%s TelegramApiException in sendTonesTasksMessage()", update.getCallbackQuery().getFrom().getUserName(), update.getCallbackQuery().getMessage().getChatId()));
             throw new RuntimeException(e);
         }
     }
